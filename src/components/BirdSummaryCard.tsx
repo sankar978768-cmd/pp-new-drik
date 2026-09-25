@@ -3,7 +3,7 @@ import { BirdId, Jama, PakshaType } from '../types';
 import { BIRDS } from '../data/panchaPakshiData';
 import { calculateBirdSummary } from '../utils/calculator';
 import { getBirdFriends, getBirdEnemies, getBirdNeutrals } from '../data/birdRelationships';
-import { Award, AlertOctagon, Clock, Copy, Check, Heart, ShieldAlert, Scale, Sparkles } from 'lucide-react';
+import { Award, AlertOctagon, Clock, Copy, Check, Heart, ShieldAlert, Scale, Sparkles, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface BirdSummaryCardProps {
@@ -13,6 +13,7 @@ interface BirdSummaryCardProps {
   sunriseTime?: string;
   sunsetTime?: string;
   paksha?: PakshaType;
+  onOpenChart?: () => void;
 }
 
 export const BirdSummaryCard: React.FC<BirdSummaryCardProps> = ({
@@ -22,6 +23,7 @@ export const BirdSummaryCard: React.FC<BirdSummaryCardProps> = ({
   sunriseTime = '06:00',
   sunsetTime = '18:00',
   paksha = 'valarpirai',
+  onOpenChart,
 }) => {
   const {
     language,
@@ -126,15 +128,28 @@ Caution Hours: ${summary.cautionTimeSlots.map((s) => `Jama ${s.jama} (${s.time})
           </div>
         </div>
 
-        <button
-          onClick={handleCopySummary}
-          id="copy-bird-summary-btn"
-          className="self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium cursor-pointer transition-colors"
-          title={language === 'ta' ? 'கணக்கீட்டு சுருக்கத்தை நகலெடு' : 'Copy calculation summary'}
-        >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
-          <span>{copied ? t('copiedText') : t('shareSummary')}</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-center">
+          {onOpenChart && (
+            <button
+              onClick={onOpenChart}
+              id="open-chart-from-summary-btn"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 text-xs font-bold cursor-pointer transition-colors"
+            >
+              <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
+              <span>{t('tabChart')}</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleCopySummary}
+            id="copy-bird-summary-btn"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium cursor-pointer transition-colors"
+            title={language === 'ta' ? 'கணக்கீட்டு சுருக்கத்தை நகலெடு' : 'Copy calculation summary'}
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+            <span>{copied ? t('copiedText') : t('shareSummary')}</span>
+          </button>
+        </div>
       </div>
 
       {/* Activity Breakdown Progress Bars */}

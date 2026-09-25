@@ -14,6 +14,7 @@ import { MasterTableView } from './components/MasterTableView';
 import { TimeLookupModal } from './components/TimeLookupModal';
 import { BirdRelationshipsView } from './components/BirdRelationshipsView';
 import { RealTimeCalendarModal } from './components/RealTimeCalendarModal';
+import { ActivityChartView } from './components/ActivityChartView';
 import { getLunarDayInfo } from './utils/lunarCalendar';
 import { useLanguage } from './context/LanguageContext';
 import {
@@ -27,6 +28,7 @@ import {
   HeartHandshake,
   Languages,
   Calendar,
+  TrendingUp,
 } from 'lucide-react';
 
 export default function App() {
@@ -68,7 +70,7 @@ export default function App() {
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [customDaysVersion, setCustomDaysVersion] = useState<number>(0);
 
-  const [activeTab, setActiveTab] = useState<'jamas' | 'summary' | 'occurrences' | 'master' | 'relationships'>('jamas');
+  const [activeTab, setActiveTab] = useState<'jamas' | 'summary' | 'chart' | 'occurrences' | 'master' | 'relationships'>('jamas');
   const [jamaFilter, setJamaFilter] = useState<'all' | 'day' | 'night'>('all');
   const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
 
@@ -395,6 +397,19 @@ export default function App() {
             </button>
 
             <button
+              onClick={() => setActiveTab('chart')}
+              id="tab-chart-btn"
+              className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'chart'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-950/40'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>{t('tabChart')}</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('occurrences')}
               id="tab-occurrences-btn"
               className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
@@ -564,6 +579,18 @@ export default function App() {
             sunriseTime={sunriseTime}
             sunsetTime={sunsetTime}
             paksha={selectedPaksha}
+            onOpenChart={() => setActiveTab('chart')}
+          />
+        )}
+
+        {activeTab === 'chart' && (
+          <ActivityChartView
+            selectedBird={selectedBird}
+            customJamas={activeJamasList}
+            sunriseTime={sunriseTime}
+            sunsetTime={sunsetTime}
+            nextSunriseTime={nextSunriseTime}
+            onSelectBird={(birdId) => setSelectedBird(birdId)}
           />
         )}
 
