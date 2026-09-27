@@ -450,6 +450,13 @@ const UI_TEXT: Record<Language, Record<string, string>> = {
     clickToPinNotice: 'Hover or tap points along the curve for detailed sub-period metrics',
     curveTypeSmooth: 'Smooth Curve',
     curveTypeStraight: 'Straight Lines',
+    zoomIn: 'Zoom In',
+    zoomOut: 'Zoom Out',
+    resetZoom: 'Reset 100%',
+    zoomLabel: 'Zoom',
+    swipeYAxis: 'Swipe Y-Axis',
+    swipeYHelp: 'Swipe / drag Y-axis vertically to adjust height; drag horizontally to pan 24-hr timeline',
+    ownSubPeriodNote: 'Star rating strictly from own sub-period under main bird Jama (not other birds)',
   },
   ta: {
     appTitle: 'பஞ்ச பட்சி கணக்கீடு',
@@ -637,6 +644,13 @@ const UI_TEXT: Record<Language, Record<string, string>> = {
     clickToPinNotice: 'விவரங்களை அறிய வளைகோட்டுப் புள்ளிகளில் தொடவும் அல்லது கர்சரை நகர்த்தவும்',
     curveTypeSmooth: 'வளைகோடு (Curve)',
     curveTypeStraight: 'நேர்கோடு (Straight)',
+    zoomIn: 'பெரிதாக்கு',
+    zoomOut: 'சிறிதாக்கு',
+    resetZoom: 'இயல்பு நிலை (100%)',
+    zoomLabel: 'பெரிதாக்கம்',
+    swipeYAxis: 'Y-அச்சை நகர்த்துக',
+    swipeYHelp: 'செங்குத்து அச்சை (Y-axis) மேலும் கீழும் நகர்த்தலாம்; கிடைமட்டமாக 24 மணி நேரத்தை நகர்த்தலாம்',
+    ownSubPeriodNote: 'முதன்மையான பட்சியின் சொந்த அந்தர்தசையின் நட்சத்திர மதிப்பீடு மட்டுமே (பிற பட்சிகள் அல்ல)',
   },
 };
 
