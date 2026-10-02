@@ -32,7 +32,7 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
   const [pastedData, setPastedData] = useState<string>('');
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
-  const todayLunarInfo = getLunarDayInfo(new Date());
+  const todayLunarInfo = getLunarDayInfo(selectedDate || new Date());
   const isSyncedWithToday =
     selectedPaksha === todayLunarInfo.paksha &&
     selectedDay === todayLunarInfo.dayOfWeek;
@@ -93,10 +93,6 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
     }
   };
 
-  const totalReadyDays = PANCHA_PAKSHI_DAYS.filter(
-    (d) => d.isReady || Boolean(getSavedCustomDayJamas(d.id))
-  ).length;
-
   const currentDayDisplayName = currentMeta
     ? (language === 'ta' ? currentMeta.tamilName : currentMeta.name)
     : '';
@@ -104,30 +100,20 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
   return (
     <div
       id="paksha-day-selector-container"
-      className="bg-slate-900/95 border border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-lg space-y-3"
+      className="bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-sm space-y-3"
     >
-      {/* Top row: Paksha Switcher & Active Indicator */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-amber-400" />
-          <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-            {t('dayCalculationsHeader')}
-          </span>
-          <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold font-mono">
-            {totalReadyDays}/14 {t('readyCount')}
-          </span>
-        </div>
-
+      {/* Top row: Paksha Switcher */}
+      <div className="flex items-center justify-between gap-2.5 pb-2.5 border-b border-slate-200 dark:border-slate-800">
         {/* Paksha Switcher Tabs */}
-        <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 self-start sm:self-auto">
+        <div className="flex items-center bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
           <button
             type="button"
             onClick={() => onSelectPakshaAndDay('valarpirai', selectedDay)}
             id="paksha-valarpirai-tab"
             className={`px-3 py-1 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer ${
               selectedPaksha === 'valarpirai'
-                ? 'bg-amber-500 text-slate-950 shadow-sm'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-amber-500 text-slate-950 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Sun className="w-3.5 h-3.5" />
@@ -140,8 +126,8 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
             id="paksha-theipirai-tab"
             className={`px-3 py-1 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer ${
               selectedPaksha === 'theipirai'
-                ? 'bg-indigo-500 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Moon className="w-3.5 h-3.5" />
@@ -151,20 +137,20 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
       </div>
 
       {/* Real-time Astronomical Calendar Status & Opener Bar */}
-      <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs shadow-inner">
+      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-[11px]">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 font-bold text-[11px]">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>{t('liveTodayBadge')}:</span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-slate-200">
+          <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200">
             <span className="text-sm">{todayLunarInfo.moonEmoji}</span>
             <span
               className={`font-bold ${
                 todayLunarInfo.paksha === 'valarpirai'
-                  ? 'text-amber-400'
-                  : 'text-indigo-400'
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-indigo-600 dark:text-indigo-400'
               }`}
             >
               {language === 'ta'
@@ -175,12 +161,12 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                 ? 'Valarpirai'
                 : 'Theipirai'}
             </span>
-            <span className="text-slate-600">•</span>
-            <span className="font-bold text-white">
+            <span className="text-slate-400 dark:text-slate-600">•</span>
+            <span className="font-bold text-slate-900 dark:text-white">
               {getDayName(todayLunarInfo.dayOfWeek)}
             </span>
-            <span className="text-slate-600">•</span>
-            <span className="text-slate-400 text-[11px]">
+            <span className="text-slate-400 dark:text-slate-600">•</span>
+            <span className="text-slate-600 dark:text-slate-400 text-[11px]">
               {language === 'ta'
                 ? todayLunarInfo.tithiNameTa
                 : todayLunarInfo.tithiNameEn}{' '}
@@ -189,7 +175,7 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
           </div>
 
           {selectedDate && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-medium">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 font-medium">
               {language === 'ta' ? 'தேர்வு:' : 'Selected:'}{' '}
               {selectedDate.toLocaleDateString(
                 language === 'ta' ? 'ta-IN' : 'en-US',
@@ -211,10 +197,10 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                 )
               }
               id="sync-today-quick-btn"
-              className="px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shrink-0"
+              className="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shrink-0"
               title={t('applyTodayBtn')}
             >
-              <Zap className="w-3 h-3 text-amber-400" />
+              <Zap className="w-3 h-3 text-amber-500" />
               <span>{t('applyTodayBtn')}</span>
             </button>
           )}
@@ -224,7 +210,7 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
               type="button"
               onClick={onOpenCalendar}
               id="open-calendar-modal-btn"
-              className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 cursor-pointer transition-all shadow-md active:scale-95 shrink-0"
+              className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-95 shrink-0"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>{t('openCalendarBtn')}</span>
@@ -233,18 +219,18 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
         </div>
       </div>
 
-      {/* Days of Week Selector Pills */}
+      {/* Days of Week Selector */}
       <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
           <span>{t('selectDayPrompt')}</span>
           {isCurrentDayReady ? (
-            <span className="text-emerald-400 font-bold flex items-center gap-1 text-[11px]">
+            <span className="text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1 text-[11px]">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>{currentDayDisplayName} {t('fullCalculationActive')}</span>
             </span>
           ) : (
-            <span className="text-slate-400 flex items-center gap-1 text-[11px]">
-              <Clock className="w-3.5 h-3.5 text-amber-400/80" />
+            <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1 text-[11px]">
+              <Clock className="w-3.5 h-3.5 text-amber-500" />
               <span>{t('awaitingData')}</span>
             </span>
           )}
@@ -267,8 +253,8 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                 id={`day-select-${dayKey}`}
                 className={`py-2 px-1 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer relative ${
                   isSelected
-                    ? 'bg-amber-500/15 border-amber-500/60 text-white font-bold ring-1 ring-amber-400/50'
-                    : 'bg-slate-950/80 hover:bg-slate-800/90 border-slate-800 text-slate-300'
+                    ? 'bg-amber-500/15 border-amber-500 dark:border-amber-400/60 text-slate-950 dark:text-white font-bold ring-1 ring-amber-500/50 shadow-xs'
+                    : 'bg-slate-50 dark:bg-slate-950/80 hover:bg-slate-100 dark:hover:bg-slate-800/90 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 <span className="text-xs sm:text-sm font-bold tracking-tight">{shortLabel}</span>
@@ -276,9 +262,9 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                 {/* Status Dot / Indicator */}
                 <div className="mt-1 flex items-center gap-0.5">
                   {hasData ? (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20" />
                   ) : (
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-600" />
                   )}
                 </div>
               </button>
@@ -288,14 +274,14 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
       </div>
 
       {/* Active Day Description & Reference Chart Action */}
-      <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3 flex flex-col gap-2.5 text-xs">
+      <div className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 rounded-xl p-3 flex flex-col gap-2.5 text-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div
               className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                 isCurrentDayReady
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
+                  : 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30'
               }`}
             >
               {isCurrentDayReady ? (
@@ -305,23 +291,18 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
               )}
             </div>
             <div>
-              <div className="font-bold text-white flex items-center gap-2">
+              <div className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>{currentDayDisplayName}</span>
                 {isCurrentDayReady ? (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 font-bold">
                     {t('activeBadge')}
                   </span>
                 ) : (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-bold">
                     {t('pendingBadge')}
                   </span>
                 )}
               </div>
-              <p className="text-slate-400 text-[11px] mt-0.5">
-                {language === 'ta'
-                  ? 'அனைத்து 10 சாமங்கள், அந்தர்தசைகள் மற்றும் பட்சி தொழில்கள் சாஸ்திரப்படி கணக்கிடப்பட்டுள்ளன.'
-                  : 'All 10 Jamas, Anthardasa sub-periods, and bird activities calculated according to Shastra.'}
-              </p>
             </div>
           </div>
 
@@ -333,9 +314,9 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                 setShowReferenceChart(true);
               }}
               id="view-reference-chart-btn"
-              className="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
+              className="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
             >
-              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+              <BookOpen className="w-3.5 h-3.5 text-amber-500" />
               <span>
                 {selectedPaksha === 'valarpirai'
                   ? t('valarpiraiChartBtn')
@@ -354,43 +335,43 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                   }
                 }}
                 id="open-upload-modal-btn"
-                className="px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 font-bold text-xs flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-bold text-xs flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
               >
-                <Upload className="w-3.5 h-3.5 text-amber-400" />
+                <Upload className="w-3.5 h-3.5 text-amber-500" />
                 <span>{language === 'ta' ? 'அட்டவணையை வழங்குக' : `Provide Table for ${currentMeta?.name}`}</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Dynamic Day Ruler, Night Ruler & Dying Bird (Pure Single-Language Badges) */}
+        {/* Dynamic Day Ruler, Night Ruler & Dying Bird */}
         {currentMeta && (
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80 text-[11px]">
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-800/80 text-[11px]">
             {currentMeta.dayRulingBird && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-slate-400">{t('dayRulerBadge')}</span>
-                <strong className="text-white font-bold">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-500/30">
+                <Sun className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span className="text-slate-600 dark:text-slate-400">{t('dayRulerBadge')}</span>
+                <strong className="text-slate-900 dark:text-white font-bold">
                   {getBirdName(currentMeta.dayRulingBird)}
                 </strong>
               </span>
             )}
 
             {currentMeta.nightRulingBird && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                <Moon className="w-3.5 h-3.5 text-purple-400" />
-                <span className="text-slate-400">{t('nightRulerBadge')}</span>
-                <strong className="text-white font-bold">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-900 dark:text-purple-300 border border-purple-500/30">
+                <Moon className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                <span className="text-slate-600 dark:text-slate-400">{t('nightRulerBadge')}</span>
+                <strong className="text-slate-900 dark:text-white font-bold">
                   {getBirdName(currentMeta.nightRulingBird)}
                 </strong>
               </span>
             )}
 
             {currentMeta.dayDyingBird && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/30 font-semibold">
-                <Skull className="w-3.5 h-3.5 text-rose-400" />
-                <span className="text-slate-400">{t('dyingBirdBadge')}</span>
-                <strong className="text-rose-200 font-bold">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/15 text-rose-900 dark:text-rose-300 border border-rose-500/30 font-semibold">
+                <Skull className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                <span className="text-slate-600 dark:text-slate-400">{t('dyingBirdBadge')}</span>
+                <strong className="text-rose-700 dark:text-rose-200 font-bold">
                   {getBirdName(currentMeta.dayDyingBird)}
                 </strong>
               </span>
@@ -399,18 +380,18 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
         )}
       </div>
 
-      {/* Ruling & Dying Bird Reference Table Modal (Pure Single Language) */}
+      {/* Ruling & Dying Bird Reference Table Modal */}
       {showReferenceChart && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/80">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-amber-400" />
+                <BookOpen className="w-5 h-5 text-amber-500" />
                 <div>
-                  <h3 className="font-bold text-base text-white">
+                  <h3 className="font-bold text-base text-slate-900 dark:text-white">
                     {t('chartModalTitle')}
                   </h3>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     {t('chartModalSubtitle')}
                   </p>
                 </div>
@@ -418,24 +399,24 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
               <button
                 type="button"
                 onClick={() => setShowReferenceChart(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Paksha Switcher in Modal */}
-            <div className="p-3 bg-slate-950/50 border-b border-slate-800 flex gap-2">
+            <div className="p-3 bg-slate-50 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex gap-2">
               <button
                 type="button"
                 onClick={() => setChartTab('valarpirai')}
                 className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   chartTab === 'valarpirai'
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
-                    : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
+                    ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40 shadow-xs'
+                    : 'bg-white dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800'
                 }`}
               >
-                <Sun className="w-4 h-4 text-amber-400" />
+                <Sun className="w-4 h-4 text-amber-500" />
                 <span>{t('valarpiraiFull')}</span>
               </button>
               <button
@@ -443,51 +424,51 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                 onClick={() => setChartTab('theipirai')}
                 className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   chartTab === 'theipirai'
-                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm'
-                    : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
+                    ? 'bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border border-indigo-500/40 shadow-xs'
+                    : 'bg-white dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800'
                 }`}
               >
-                <Moon className="w-4 h-4 text-indigo-400" />
+                <Moon className="w-4 h-4 text-indigo-500" />
                 <span>{t('theipiraiFull')}</span>
               </button>
             </div>
 
             <div className="p-4 overflow-y-auto space-y-3 text-xs">
-              <div className="overflow-x-auto rounded-xl border border-slate-800">
+              <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-slate-950 text-slate-400 border-b border-slate-800">
-                      <th className="py-2.5 px-3 font-bold text-white">{t('dayCol')}</th>
-                      <th className="py-2.5 px-3 font-bold text-amber-300">
+                    <tr className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                      <th className="py-2.5 px-3 font-bold text-slate-900 dark:text-white">{t('dayCol')}</th>
+                      <th className="py-2.5 px-3 font-bold text-amber-700 dark:text-amber-300">
                         <div className="flex items-center gap-1.5">
-                          <Sun className="w-3.5 h-3.5 text-amber-400" />
+                          <Sun className="w-3.5 h-3.5 text-amber-500" />
                           <span>{t('dayRulerCol')}</span>
                         </div>
                       </th>
-                      <th className="py-2.5 px-3 font-bold text-purple-300">
+                      <th className="py-2.5 px-3 font-bold text-purple-700 dark:text-purple-300">
                         <div className="flex items-center gap-1.5">
-                          <Moon className="w-3.5 h-3.5 text-purple-400" />
+                          <Moon className="w-3.5 h-3.5 text-purple-500" />
                           <span>{t('nightRulerCol')}</span>
                         </div>
                       </th>
-                      <th className="py-2.5 px-3 font-bold text-rose-300">
+                      <th className="py-2.5 px-3 font-bold text-rose-700 dark:text-rose-300">
                         <div className="flex items-center gap-1.5">
-                          <Skull className="w-3.5 h-3.5 text-rose-400" />
+                          <Skull className="w-3.5 h-3.5 text-rose-500" />
                           <span>{t('dyingBirdCol')}</span>
                         </div>
                       </th>
                       <th className="py-2.5 px-2 text-right">{t('actionCol')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60">
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60">
                     {PANCHA_PAKSHI_DAYS.filter((d) => d.paksha === chartTab).map((day) => {
                       const isCurrent = selectedPaksha === chartTab && selectedDay === day.dayOfWeek;
                       const dayRulerName = day.dayRulingBird ? getBirdName(day.dayRulingBird) : '';
                       const nightRulerName = day.nightRulingBird ? getBirdName(day.nightRulingBird) : '';
                       const dyingName = day.dayDyingBird ? getBirdName(day.dayDyingBird) : '';
-                      const dayRulerColor = day.dayRulingBird ? BIRDS[day.dayRulingBird]?.color : '#fff';
-                      const nightRulerColor = day.nightRulingBird ? BIRDS[day.nightRulingBird]?.color : '#fff';
-                      const dyingColor = day.dayDyingBird ? BIRDS[day.dayDyingBird]?.color : '#fff';
+                      const dayRulerColor = day.dayRulingBird ? BIRDS[day.dayRulingBird]?.color : '#888';
+                      const nightRulerColor = day.nightRulingBird ? BIRDS[day.nightRulingBird]?.color : '#888';
+                      const dyingColor = day.dayDyingBird ? BIRDS[day.dayDyingBird]?.color : '#888';
                       const singleDayName = getDayName(day.dayOfWeek);
 
                       return (
@@ -495,15 +476,15 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                           key={day.id}
                           className={`transition-colors ${
                             isCurrent
-                              ? 'bg-amber-500/10 font-medium text-white'
-                              : 'hover:bg-slate-800/50 text-slate-300'
+                              ? 'bg-amber-500/10 font-medium text-slate-950 dark:text-white'
+                              : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300'
                           }`}
                         >
                           <td className="py-2.5 px-3 font-bold">
                             <div className="flex items-center gap-2">
                               <span>{singleDayName}</span>
                               {isCurrent && (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
                                   {t('currentBadge')}
                                 </span>
                               )}
@@ -512,19 +493,19 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                           <td className="py-2.5 px-3">
                             <div className="flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: dayRulerColor }} />
-                              <span className="font-semibold text-amber-200">{dayRulerName}</span>
+                              <span className="font-semibold text-amber-700 dark:text-amber-200">{dayRulerName}</span>
                             </div>
                           </td>
                           <td className="py-2.5 px-3">
                             <div className="flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: nightRulerColor }} />
-                              <span className="font-semibold text-purple-200">{nightRulerName}</span>
+                              <span className="font-semibold text-purple-700 dark:text-purple-200">{nightRulerName}</span>
                             </div>
                           </td>
                           <td className="py-2.5 px-3">
                             <div className="flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: dyingColor }} />
-                              <span className="font-bold text-rose-300">{dyingName}</span>
+                              <span className="font-bold text-rose-700 dark:text-rose-300">{dyingName}</span>
                             </div>
                           </td>
                           <td className="py-2.5 px-2 text-right">
@@ -534,7 +515,7 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                                 onSelectPakshaAndDay(chartTab, day.dayOfWeek);
                                 setShowReferenceChart(false);
                               }}
-                              className="px-2 py-1 rounded bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 text-[11px] font-semibold transition-colors cursor-pointer"
+                              className="px-2.5 py-1 rounded bg-slate-200 dark:bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-800 dark:text-slate-300 text-[11px] font-semibold transition-colors cursor-pointer"
                             >
                               {t('selectThisDay')}
                             </button>
@@ -546,7 +527,7 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
                 </table>
               </div>
 
-              <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-400 text-[11px] space-y-1">
+              <div className="p-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-600 dark:text-slate-400 text-[11px] space-y-1">
                 {language === 'ta' ? (
                   <>
                     <p>• <strong>பகல் அரசு:</strong> சூரியோதயம் (சாமம் 1) முதல் அஸ்தமனம் (சாமம் 5) வரை ஆட்சி செய்யும்.</p>
@@ -563,11 +544,11 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
               </div>
             </div>
 
-            <div className="p-3 bg-slate-950/80 border-t border-slate-800 flex items-center justify-end">
+            <div className="p-3 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end">
               <button
                 type="button"
                 onClick={() => setShowReferenceChart(false)}
-                className="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+                className="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-300 text-xs font-semibold cursor-pointer"
               >
                 {t('closeBtn')}
               </button>
@@ -578,87 +559,81 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
 
       {/* Modal for Uploading / Providing Calculation for this Day */}
       {modalDay && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/80">
               <div className="flex items-center gap-2">
-                <Upload className="w-5 h-5 text-amber-400" />
-                <h3 className="font-bold text-base text-white">
-                  {language === 'ta' ? `கணக்கீட்டு அட்டவணை: ${modalDay.tamilName}` : `Provide Calculation Table: ${modalDay.name}`}
+                <FileText className="w-5 h-5 text-amber-500" />
+                <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                  {language === 'ta' ? `${modalDay.tamilName} கணக்கீடு` : `Calculation for ${modalDay.name}`}
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={() => setModalDay(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-4 overflow-y-auto space-y-4 text-xs">
-              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-200">
-                <div className="font-bold flex items-center gap-1.5 mb-1">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <span>{language === 'ta' ? 'கணக்கீட்டு அட்டவணை உள்ளீடு' : 'Ready for Your Calculation Table!'}</span>
-                </div>
-                <p className="text-slate-300 leading-relaxed text-[11px]">
-                  {language === 'ta'
-                    ? `${modalDay.tamilName} நாளுக்கான அட்டவணை தகவல் அல்லது JSON ஐ கீழே ஒட்டவும்.`
-                    : `Whenever you are ready to upload or share the calculations for ${modalDay.name}, you can paste the table text or JSON below.`}
-                </p>
-              </div>
+            <div className="p-4 space-y-3 text-xs">
+              <p className="text-slate-600 dark:text-slate-300">
+                {language === 'ta'
+                  ? 'இந்த நாளுக்கான 10 சாமங்கள் அல்லது அந்தர்தசை தகவல்களை கீழே பதிவு செய்யலாம்:'
+                  : `Paste the 10 Jamas calculation table or JSON array for ${modalDay.name}:`}
+              </p>
 
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="font-bold text-slate-300">
-                    {language === 'ta' ? 'கணக்கீட்டு தரவை உள்ளிடவும்:' : 'Paste Calculation Data / Table Text:'}
-                  </label>
-                  <label className="cursor-pointer text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1">
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>Upload .txt / .json</span>
-                    <input
-                      type="file"
-                      accept=".txt,.json,.csv"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1">
+                  {language === 'ta' ? 'JSON அல்லது உரை தரவு' : 'Paste JSON or Text Data'}
+                </label>
                 <textarea
-                  rows={6}
                   value={pastedData}
                   onChange={(e) => setPastedData(e.target.value)}
-                  placeholder="Paste Jama activities here..."
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white font-mono text-xs focus:outline-none focus:border-amber-400 resize-none"
+                  placeholder='[{"jamaNumber":1,"isDay":true,"columns":{...}}]'
+                  rows={6}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 font-mono text-[11px] text-slate-900 dark:text-slate-200 focus:outline-hidden focus:ring-1 focus:ring-amber-400"
                 />
               </div>
 
+              <div className="flex items-center gap-2">
+                <label className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700 cursor-pointer font-semibold flex items-center gap-1.5">
+                  <Upload className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{language === 'ta' ? 'கோப்பு பதிவேற்றம் (.json, .txt)' : 'Upload File (.json, .txt)'}</span>
+                  <input
+                    type="file"
+                    accept=".json,.txt"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
               {uploadStatus && (
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 text-xs">
+                <div className="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-300 text-[11px]">
                   {uploadStatus}
                 </div>
               )}
             </div>
 
-            <div className="p-3 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between">
+            <div className="p-3 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setModalDay(null)}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-300 text-xs font-semibold cursor-pointer"
               >
                 {t('closeBtn')}
               </button>
-
-              <button
-                type="button"
-                onClick={handleSavePastedData}
-                disabled={!pastedData.trim()}
-                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-md"
-              >
-                <Upload className="w-3.5 h-3.5" />
-                <span>{language === 'ta' ? 'சேமிக்குக' : 'Save / Submit Data'}</span>
-              </button>
+              {pastedData.trim() && (
+                <button
+                  type="button"
+                  onClick={handleSavePastedData}
+                  className="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold cursor-pointer transition-all"
+                >
+                  {language === 'ta' ? 'சேமிக்கவும்' : 'Save Calculation'}
+                </button>
+              )}
             </div>
           </div>
         </div>

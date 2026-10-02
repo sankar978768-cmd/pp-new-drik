@@ -1,9 +1,8 @@
 import React from 'react';
 import { BirdId, DayCalculationMeta, PakshaType } from '../types';
 import { BIRDS } from '../data/panchaPakshiData';
-import { getBirdFriends, getBirdEnemies } from '../data/birdRelationships';
 import { motion } from 'motion/react';
-import { Sun, Moon, Skull, Feather, Heart, ShieldAlert } from 'lucide-react';
+import { Sun, Moon, Skull, Feather } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface BirdSelectorProps {
@@ -41,15 +40,12 @@ export const BirdSelector: React.FC<BirdSelectorProps> = ({ selectedBird, onSele
     <section aria-label="Bird Selection" className="w-full">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3">
         <div>
-          <h2 className="text-sm font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-2">
-            <Feather className="w-4 h-4 text-amber-400" />
+          <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase flex items-center gap-1.5">
+            <Feather className="w-3.5 h-3.5 text-amber-500" />
             <span>{t('selectYourBird')}</span>
           </h2>
-          <p className="text-xs text-slate-400">
-            {t('selectYourBirdDesc')}
-          </p>
         </div>
-        <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-700/60 text-slate-300 font-medium">
+        <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 font-medium">
           {dayMeta
             ? (language === 'ta' ? dayMeta.tamilName : dayMeta.name)
             : getPakshaName(activePaksha)}
@@ -62,8 +58,6 @@ export const BirdSelector: React.FC<BirdSelectorProps> = ({ selectedBird, onSele
           const dayRel = getDayRelation(bird.id);
           const nightRel = getNightRelation(bird.id);
           const bName = getBirdName(bird.id);
-          const friends = getBirdFriends(bird.id, activePaksha);
-          const enemies = getBirdEnemies(bird.id, activePaksha);
 
           return (
             <motion.button
@@ -72,10 +66,10 @@ export const BirdSelector: React.FC<BirdSelectorProps> = ({ selectedBird, onSele
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               id={`bird-select-btn-${bird.id}`}
-              className={`relative flex flex-col p-3 sm:p-3.5 rounded-xl text-left transition-all duration-200 min-h-[110px] cursor-pointer touch-manipulation border ${
+              className={`relative flex flex-col p-3 sm:p-3.5 rounded-xl text-left transition-all duration-150 min-h-[110px] cursor-pointer touch-manipulation border ${
                 isSelected
-                  ? 'bg-slate-900/95 border-amber-400 ring-2 ring-amber-400/40 shadow-lg shadow-amber-950/40'
-                  : 'bg-slate-900/50 hover:bg-slate-850 border-slate-800 hover:border-slate-700 text-slate-300'
+                  ? 'bg-amber-500/10 dark:bg-slate-900 border-amber-500 dark:border-amber-400 ring-2 ring-amber-500/40 dark:ring-amber-400/40 shadow-md'
+                  : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-850 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 shadow-xs'
               }`}
             >
               {/* Selected Badge */}
@@ -86,7 +80,7 @@ export const BirdSelector: React.FC<BirdSelectorProps> = ({ selectedBird, onSele
                 </span>
               )}
 
-              {/* Bird Icon & Pure Name (No mixing) */}
+              {/* Bird Icon & Pure Name */}
               <div className="flex items-center gap-2 mb-1.5">
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 border"
@@ -99,63 +93,51 @@ export const BirdSelector: React.FC<BirdSelectorProps> = ({ selectedBird, onSele
                   {bName[0]}
                 </div>
                 <div className="min-w-0">
-                  <h3 className={`font-bold text-sm sm:text-base truncate ${isSelected ? 'text-white font-extrabold' : 'text-slate-200'}`}>
+                  <h3 className={`font-bold text-sm sm:text-base truncate ${isSelected ? 'text-slate-950 dark:text-white font-extrabold' : 'text-slate-900 dark:text-slate-200'}`}>
                     {bName}
                   </h3>
-                  <p className="text-[11px] text-slate-400 truncate leading-tight font-medium">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate leading-tight font-medium">
                     {getElementName(bird.id)}
                   </p>
                 </div>
               </div>
 
               {/* Role Indicators */}
-              <div className="mt-auto pt-2 border-t border-slate-800/80 space-y-1.5 text-[10px]">
+              <div className="mt-auto pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-1.5 text-[10px]">
                 <div className="flex flex-wrap items-center gap-1.5">
                   {dayRel === 'Ruling Bird' && (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-medium">
-                      <Sun className="w-3 h-3 text-amber-400" /> {t('dayRulerShort')}
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-medium">
+                      <Sun className="w-3 h-3 text-amber-500 dark:text-amber-400" /> {t('dayRulerShort')}
                     </span>
                   )}
                   {nightRel === 'Ruling Bird' && (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-medium">
-                      <Moon className="w-3 h-3 text-purple-400" /> {t('nightRulerShort')}
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/30 font-medium">
+                      <Moon className="w-3 h-3 text-purple-600 dark:text-purple-400" /> {t('nightRulerShort')}
                     </span>
                   )}
                   {dayRel === 'Dying Bird' && nightRel === 'Dying Bird' ? (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold">
-                      <Skull className="w-3 h-3 text-rose-400" /> {t('dyingShort')}
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-500/30 font-bold">
+                      <Skull className="w-3 h-3 text-rose-600 dark:text-rose-400" /> {t('dyingShort')}
                     </span>
                   ) : (
                     <>
                       {dayRel === 'Dying Bird' && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium">
-                          <Skull className="w-3 h-3 text-rose-400" /> {t('dayDyingShort')}
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-500/30 font-medium">
+                          <Skull className="w-3 h-3 text-rose-600 dark:text-rose-400" /> {t('dayDyingShort')}
                         </span>
                       )}
                       {nightRel === 'Dying Bird' && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium">
-                          <Skull className="w-3 h-3 text-rose-400" /> {t('nightDyingShort')}
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-500/30 font-medium">
+                          <Skull className="w-3 h-3 text-rose-600 dark:text-rose-400" /> {t('nightDyingShort')}
                         </span>
                       )}
                     </>
                   )}
                   {!dayRel && !nightRel && (
-                    <span className="text-slate-400 font-normal">
+                    <span className="text-slate-500 dark:text-slate-400 font-normal">
                       {getElementName(bird.id)}
                     </span>
                   )}
-                </div>
-
-                {/* Friend & Enemy preview (Pure names) */}
-                <div className="flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-800/60 pt-1">
-                  <span className="text-emerald-400 flex items-center gap-1" title={t('friendsCount')}>
-                    <Heart className="w-2.5 h-2.5" />
-                    <span>{friends.map((f) => getBirdName(f)).join(', ')}</span>
-                  </span>
-                  <span className="text-rose-400 flex items-center gap-1" title={t('enemiesCount')}>
-                    <ShieldAlert className="w-2.5 h-2.5" />
-                    <span>{enemies.map((e) => getBirdName(e)).join(', ')}</span>
-                  </span>
                 </div>
               </div>
             </motion.button>

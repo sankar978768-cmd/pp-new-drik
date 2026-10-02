@@ -34,7 +34,8 @@ export const CITY_PRESETS: CityPreset[] = [
 export function calculateSolarTimes(
   lat: number,
   lng: number,
-  date: Date = new Date()
+  date: Date = new Date(),
+  explicitTimezoneOffsetMin?: number
 ): { sunrise: string; sunset: string; nextSunrise: string } {
   const calcForDate = (d: Date): { sunriseMinutes: number; sunsetMinutes: number } => {
     // Day of the year
@@ -84,7 +85,9 @@ export function calculateSolarTimes(
     const ha = Math.acos(cosHA) * (180 / Math.PI); // degrees
 
     // Local timezone offset in minutes from UTC (negative for east of UTC in JS getTimezoneOffset)
-    const timezoneOffsetMin = -d.getTimezoneOffset();
+    const timezoneOffsetMin = typeof explicitTimezoneOffsetMin === 'number'
+      ? explicitTimezoneOffsetMin
+      : -d.getTimezoneOffset();
 
     // Solar noon in minutes from local midnight
     const solarNoon = 720 - 4 * lng - eqtime + timezoneOffsetMin;

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { BirdId, Jama, ActivityType, SubPeriod } from '../types';
 import { BIRDS, ALL_BIRD_IDS, ACTIVITY_DETAILS } from '../data/panchaPakshiData';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   TrendingUp,
   Activity,
@@ -96,6 +97,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
   onSelectBird,
 }) => {
   const { language, t, getBirdName, getActivityName } = useLanguage();
+  const { isDark } = useTheme();
 
   // Chart configuration state
   const [method, setMethod] = useState<ChartMethod>('work');
@@ -557,21 +559,21 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
   return (
     <div
       id="pancha-pakshi-activity-chart-view"
-      className="bg-slate-900/95 border border-slate-800 rounded-2xl p-3 sm:p-5 shadow-xl space-y-4 select-none"
+      className="bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-5 shadow-sm space-y-4 select-none transition-colors"
     >
       {/* 1. Header & Context */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800/80">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-sm shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-xs shrink-0">
             <TrendingUp className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                 <span>{t('chartTitle')}</span>
               </h2>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {t('chartSubtitle')}
             </p>
           </div>
@@ -585,8 +587,8 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
             id="preset-my-bird-btn"
             className={`px-2.5 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer ${
               comparedBirds.length === 1 && comparedBirds.includes(selectedBird)
-                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm font-bold'
-                : 'bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700'
+                ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-xs font-bold'
+                : 'bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             {t('presetMyBird')}
@@ -598,8 +600,8 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
             id="preset-rulers-btn"
             className={`px-2.5 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer ${
               comparedBirds.length === 2 && comparedBirds.includes('vulture') && comparedBirds.includes('crow')
-                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm font-bold'
-                : 'bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700'
+                ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-xs font-bold'
+                : 'bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             {t('presetRulers')}
@@ -611,8 +613,8 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
             id="preset-all-birds-btn"
             className={`px-2.5 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer ${
               comparedBirds.length === 5
-                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm font-bold'
-                : 'bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700'
+                ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-xs font-bold'
+                : 'bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             {t('presetAll')}
@@ -621,21 +623,21 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
       </div>
 
       {/* 2. Interactive Controls Toolbar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 bg-slate-50 dark:bg-slate-950/70 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
         {/* Method 1 vs Method 2 Switcher */}
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+          <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             {language === 'ta' ? 'வரைபட முறை (Method)' : 'Chart Method'}
           </label>
-          <div className="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+          <div className="grid grid-cols-2 gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setMethod('work')}
               id="chart-method-work-btn"
               className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 method === 'work'
-                  ? 'bg-amber-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-amber-500 text-slate-950 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <Activity className="w-3.5 h-3.5" />
@@ -648,8 +650,8 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
               id="chart-method-star-btn"
               className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 method === 'star'
-                  ? 'bg-amber-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-amber-500 text-slate-950 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <Star className="w-3.5 h-3.5" />
@@ -660,18 +662,18 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
 
         {/* Resolution: Main Jama vs Sub-Periods */}
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+          <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             {language === 'ta' ? 'கால அளவு (Period)' : 'Timeline Granularity'}
           </label>
-          <div className="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+          <div className="grid grid-cols-2 gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setResolution('main')}
               id="chart-res-main-btn"
               className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 resolution === 'main'
-                  ? 'bg-slate-700 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
@@ -684,8 +686,8 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
               id="chart-res-sub-btn"
               className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 resolution === 'sub'
-                  ? 'bg-slate-700 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -696,18 +698,18 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
 
         {/* Curve Type: Smooth Curved Line vs Straight */}
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+          <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             {language === 'ta' ? 'கோட்டு வடிவம்' : 'Line Smoothing'}
           </label>
-          <div className="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+          <div className="grid grid-cols-2 gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setCurveType('smooth')}
               id="chart-curve-smooth-btn"
               className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
                 curveType === 'smooth'
-                  ? 'bg-slate-700 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <span>{t('curveTypeSmooth')}</span>
@@ -719,8 +721,8 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
               id="chart-curve-straight-btn"
               className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
                 curveType === 'straight'
-                  ? 'bg-slate-700 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <span>{t('curveTypeStraight')}</span>
@@ -730,7 +732,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
 
         {/* Invert Order Toggle (Method 1: Work Order, Method 2: Star Rating) */}
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+          <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             {method === 'work' ? t('invertWorkOrderLabel') : t('invertStarOrderLabel')}
           </label>
           {method === 'work' ? (
@@ -740,12 +742,12 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
               id="toggle-invert-work-btn"
               className={`py-2 px-3 rounded-xl border font-bold flex items-center justify-between transition-all cursor-pointer ${
                 invertWorkOrder
-                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50'
-                  : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
+                  ? 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/40'
+                  : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
               }`}
             >
               <div className="flex items-center gap-1.5">
-                <ArrowDownUp className="w-3.5 h-3.5 text-amber-400" />
+                <ArrowDownUp className="w-3.5 h-3.5 text-amber-500" />
                 <span className="truncate">
                   {invertWorkOrder
                     ? language === 'ta'
@@ -756,7 +758,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                     : 'Die (Top) ⇄ Rule (Bottom)'}
                 </span>
               </div>
-              <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 ml-1">
+              <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 ml-1">
                 {invertWorkOrder ? 'Inverted' : 'Default'}
               </span>
             </button>
@@ -767,12 +769,12 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
               id="toggle-invert-star-btn"
               className={`py-2 px-3 rounded-xl border font-bold flex items-center justify-between transition-all cursor-pointer ${
                 invertStarOrder
-                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50'
-                  : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
+                  ? 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/40'
+                  : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
               }`}
             >
               <div className="flex items-center gap-1.5">
-                <ArrowDownUp className="w-3.5 h-3.5 text-amber-400" />
+                <ArrowDownUp className="w-3.5 h-3.5 text-amber-500" />
                 <span className="truncate">
                   {invertStarOrder
                     ? language === 'ta'
@@ -783,7 +785,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                     : '1 Star (Top) ⇄ 10 (Bottom)'}
                 </span>
               </div>
-              <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 ml-1">
+              <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 ml-1">
                 {invertStarOrder ? 'Inverted' : 'Default'}
               </span>
             </button>
@@ -792,10 +794,10 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
       </div>
 
       {/* 3. Birds Multi-Toggle Bar & Zoom / Swipe Y Controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-slate-950/80 rounded-xl border border-slate-800">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-slate-50 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800">
         {/* Bird selection toggles */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-bold text-slate-300">
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
             {t('compareBirdsPrompt')}
           </span>
 
@@ -813,8 +815,8 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                   id={`toggle-chart-bird-${bId}`}
                   className={`py-1.5 px-2 sm:px-2.5 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer relative ${
                     isCompared
-                      ? 'text-white shadow-md'
-                      : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'text-slate-950 dark:text-white shadow-xs'
+                      : 'bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 shadow-2xs'
                   }`}
                   style={{
                     backgroundColor: isCompared ? `${birdInfo.color}25` : undefined,
@@ -834,7 +836,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                   )}
                   {isPrimary && (
                     <span
-                      className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-slate-950"
+                      className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-950"
                       title="Active Primary Bird"
                     />
                   )}
@@ -847,20 +849,20 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
         {/* Zoom & Swipe Controls */}
         <div className="flex items-center gap-2 flex-wrap self-start lg:self-auto text-xs">
           {/* Zoom Level Indicator & Buttons */}
-          <div className="flex items-center bg-slate-900 rounded-xl border border-slate-800 p-0.5">
+          <div className="flex items-center bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-0.5 shadow-2xs">
             <button
               type="button"
               onClick={handleZoomOut}
               disabled={zoomX <= 1.0}
               id="chart-zoom-out-btn"
               aria-label="Zoom Out"
-              className="p-1.5 rounded-lg text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               title={t('zoomOut')}
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
 
-            <span className="px-2 font-mono font-bold text-amber-300 text-[11px] min-w-[34px] text-center">
+            <span className="px-2 font-mono font-bold text-amber-700 dark:text-amber-300 text-[11px] min-w-[34px] text-center">
               {zoomX.toFixed(1)}x
             </span>
 
@@ -870,7 +872,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
               disabled={zoomX >= 4.0}
               id="chart-zoom-in-btn"
               aria-label="Zoom In"
-              className="p-1.5 rounded-lg text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               title={t('zoomIn')}
             >
               <ZoomIn className="w-3.5 h-3.5" />
@@ -878,7 +880,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
           </div>
 
           {/* Quick Zoom Presets */}
-          <div className="hidden sm:flex items-center gap-1 bg-slate-900 p-0.5 rounded-xl border border-slate-800 text-[10px] font-bold">
+          <div className="hidden sm:flex items-center gap-1 bg-white dark:bg-slate-900 p-0.5 rounded-xl border border-slate-200 dark:border-slate-800 text-[10px] font-bold shadow-2xs">
             {[1.0, 2.0, 3.0, 4.0].map((level) => (
               <button
                 key={level}
@@ -886,8 +888,8 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                 onClick={() => setZoomX(level)}
                 className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
                   zoomX === level
-                    ? 'bg-amber-500 text-slate-950 font-extrabold shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-amber-500 text-slate-950 font-extrabold shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
                 {level}x
@@ -896,9 +898,9 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
           </div>
 
           {/* Swipe Y-Axis Nudge / Helper Pill */}
-          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-[11px]">
-            <span className="text-slate-400 flex items-center gap-1 px-1 font-semibold">
-              <MoveVertical className="w-3 h-3 text-amber-400" />
+          <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] shadow-2xs">
+            <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1 px-1 font-semibold">
+              <MoveVertical className="w-3 h-3 text-amber-500" />
               <span className="hidden sm:inline">{t('swipeYAxis')}</span>
             </span>
             <button
@@ -906,7 +908,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
               onClick={() => setPanY((prev) => Math.max(-0.45, Math.round((prev - 0.1) * 100) / 100))}
               id="swipe-y-up-btn"
               aria-label="Swipe Y Up"
-              className="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold cursor-pointer"
+              className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold cursor-pointer"
               title="Shift Y Axis Up"
             >
               ▲
@@ -916,7 +918,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
               onClick={() => setPanY((prev) => Math.min(0.45, Math.round((prev + 0.1) * 100) / 100))}
               id="swipe-y-down-btn"
               aria-label="Swipe Y Down"
-              className="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold cursor-pointer"
+              className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold cursor-pointer"
               title="Shift Y Axis Down"
             >
               ▼
@@ -929,10 +931,10 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
               type="button"
               onClick={handleResetZoomPan}
               id="chart-reset-zoom-pan-btn"
-              className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+              className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
               title={t('resetZoom')}
             >
-              <RotateCcw className="w-3 h-3 text-amber-400" />
+              <RotateCcw className="w-3 h-3 text-amber-500" />
               <span>{t('resetZoom')}</span>
             </button>
           )}
@@ -940,13 +942,13 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
       </div>
 
       {/* Swipe Y & Zoom instructions banner */}
-      <div className="px-3 py-1.5 bg-slate-950/60 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2 text-[11px] text-slate-400">
+      <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-2 text-[11px] text-slate-600 dark:text-slate-400">
         <div className="flex items-center gap-2">
-          <HelpCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <HelpCircle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
           <span>{t('swipeYHelp')}</span>
         </div>
-        <div className="flex items-center gap-1.5 text-amber-300 font-medium">
-          <Sparkles className="w-3 h-3 text-amber-400" />
+        <div className="flex items-center gap-1.5 text-amber-800 dark:text-amber-300 font-medium">
+          <Sparkles className="w-3 h-3 text-amber-500" />
           <span className="hidden sm:inline">{t('ownSubPeriodNote')}</span>
         </div>
       </div>
@@ -954,7 +956,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
       {/* 4. Main SVG Curved Chart Display Container */}
       <div
         ref={containerRef}
-        className={`relative bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-inner ${
+        className={`relative bg-slate-50/50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-inner ${
           isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
       >
@@ -1017,8 +1019,8 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
             y={MARGIN.top}
             width={MARGIN.left - 8}
             height={CHART_HEIGHT}
-            fill="#090d16"
-            opacity="0.8"
+            fill={isDark ? '#090d16' : '#f8fafc'}
+            opacity="0.85"
             rx="6"
             className="cursor-ns-resize"
           />
@@ -1027,7 +1029,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
               transform="rotate(-90)"
               x="0"
               y="0"
-              fill="#475569"
+              fill={isDark ? '#475569' : '#94a3b8'}
               fontSize="9"
               fontWeight="bold"
               letterSpacing="2"
@@ -1063,10 +1065,10 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                   y1={MARGIN.top}
                   x2={jb.x}
                   y2={MARGIN.top + CHART_HEIGHT}
-                  stroke={jb.isDay ? '#334155' : '#1e293b'}
+                  stroke={jb.isDay ? (isDark ? '#334155' : '#cbd5e1') : (isDark ? '#1e293b' : '#e2e8f0')}
                   strokeWidth={jb.jamaNumber === 6 ? '2.5' : '1'}
                   strokeDasharray={jb.jamaNumber === 6 ? 'none' : '3,3'}
-                  strokeOpacity={jb.jamaNumber === 6 ? '0.9' : '0.5'}
+                  strokeOpacity={jb.jamaNumber === 6 ? '0.9' : '0.6'}
                 />
               </g>
             ))}
@@ -1079,10 +1081,10 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                 y1={tick.y}
                 x2={MARGIN.left + CHART_WIDTH}
                 y2={tick.y}
-                stroke="#334155"
+                stroke={isDark ? '#334155' : '#e2e8f0'}
                 strokeWidth="1"
                 strokeDasharray="4,4"
-                strokeOpacity="0.35"
+                strokeOpacity={isDark ? '0.35' : '0.7'}
               />
             ))}
 
@@ -1094,7 +1096,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                   y1={MARGIN.top}
                   x2={getSvgX(currentLiveMinuteInCycle)}
                   y2={MARGIN.top + CHART_HEIGHT}
-                  stroke="#38bdf8"
+                  stroke="#0284c7"
                   strokeWidth="2"
                   strokeDasharray="5,3"
                   className="animate-pulse"
@@ -1151,7 +1153,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                           cy={pt.y}
                           r={isHovered ? 6.5 : resolution === 'main' ? 4.5 : 2.8}
                           fill={birdInfo.color}
-                          stroke="#0f172a"
+                          stroke={isDark ? '#0f172a' : '#ffffff'}
                           strokeWidth={isHovered ? 2.5 : 1.5}
                           className="transition-all cursor-pointer"
                         />
@@ -1180,10 +1182,10 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                 y1={MARGIN.top}
                 x2={getSvgX(hoveredMinute)}
                 y2={MARGIN.top + CHART_HEIGHT}
-                stroke="#ffffff"
+                stroke={isDark ? '#ffffff' : '#0f172a'}
                 strokeWidth="1.5"
                 strokeDasharray="2,2"
-                opacity="0.8"
+                opacity="0.75"
               />
             )}
           </g>
@@ -1193,15 +1195,15 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
           {/* Day / Night phase labels & icons */}
           <g className="text-[11px] font-bold">
             <g transform={`translate(${MARGIN.left + 15}, ${MARGIN.top - 14})`}>
-              <Sun className="w-3.5 h-3.5 text-amber-400" />
-              <text x="18" y="10" fill="#f59e0b" fontSize="11" fontWeight="bold">
+              <Sun className="w-3.5 h-3.5 text-amber-500" />
+              <text x="18" y="10" fill={isDark ? '#f59e0b' : '#b45309'} fontSize="11" fontWeight="bold">
                 {t('dayCycleLabel')} ({sunriseTime} - {sunsetTime})
               </text>
             </g>
 
             <g transform={`translate(${MARGIN.left + CHART_WIDTH / 2 + 15}, ${MARGIN.top - 14})`}>
-              <Moon className="w-3.5 h-3.5 text-indigo-400" />
-              <text x="18" y="10" fill="#818cf8" fontSize="11" fontWeight="bold">
+              <Moon className="w-3.5 h-3.5 text-indigo-500" />
+              <text x="18" y="10" fill={isDark ? '#818cf8' : '#4f46e5'} fontSize="11" fontWeight="bold">
                 {t('nightCycleLabel')} ({sunsetTime} - {nextSunriseTime})
               </text>
             </g>
@@ -1210,14 +1212,14 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
           {/* Current Live Moment Badge ("NOW") */}
           {currentLiveMinuteInCycle >= panX && currentLiveMinuteInCycle <= panX + visibleDuration && (
             <g transform={`translate(${getSvgX(currentLiveMinuteInCycle)}, ${MARGIN.top - 14})`}>
-              <circle cx="0" cy="0" r="4" fill="#38bdf8" />
+              <circle cx="0" cy="0" r="4" fill="#0284c7" />
               <rect
                 x="-18"
                 y="-16"
                 width="36"
                 height="14"
                 rx="4"
-                fill="#0369a1"
+                fill={isDark ? '#0369a1' : '#0284c7'}
                 stroke="#38bdf8"
                 strokeWidth="1"
               />
@@ -1262,7 +1264,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                 <text
                   x={jb.x + ((72 / visibleDuration) * CHART_WIDTH)}
                   y={MARGIN.top + CHART_HEIGHT + 18}
-                  fill="#94a3b8"
+                  fill={isDark ? '#94a3b8' : '#475569'}
                   fontSize="10"
                   fontWeight="600"
                   textAnchor="middle"
@@ -1273,7 +1275,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                 <text
                   x={jb.x}
                   y={MARGIN.top + CHART_HEIGHT + 35}
-                  fill="#64748b"
+                  fill={isDark ? '#64748b' : '#94a3b8'}
                   fontSize="9"
                   fontWeight="500"
                   textAnchor="middle"
@@ -1289,7 +1291,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
             <text
               x={getSvgX(1440)}
               y={MARGIN.top + CHART_HEIGHT + 35}
-              fill="#64748b"
+              fill={isDark ? '#64748b' : '#94a3b8'}
               fontSize="9"
               fontWeight="500"
               textAnchor="middle"
@@ -1301,16 +1303,16 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
 
         {/* 5. Rich Floating Tooltip */}
         {hoveredPointInfo && (
-          <div className="absolute top-2 right-2 max-w-xs bg-slate-900/95 backdrop-blur-md border border-slate-700/90 rounded-xl p-3 shadow-2xl space-y-2 pointer-events-none animate-fadeIn text-xs z-30">
+          <div className="absolute top-2 right-2 max-w-xs bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700/90 rounded-xl p-3 shadow-2xl space-y-2 pointer-events-none animate-fadeIn text-xs z-30">
             {/* Header: Time and Period */}
-            <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-1.5">
-              <span className="font-extrabold text-white font-mono flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-amber-400" />
+            <div className="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-1.5">
+              <span className="font-extrabold text-slate-900 dark:text-white font-mono flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5 text-amber-500" />
                 <span>
                   {Object.values(hoveredPointInfo.points)[0]?.timeRange || ''}
                 </span>
               </span>
-              <span className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-300">
+              <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300">
                 Jama {Object.values(hoveredPointInfo.points)[0]?.jamaNumber}
                 {Object.values(hoveredPointInfo.points)[0]?.subIndex
                   ? ` · Sub ${Object.values(hoveredPointInfo.points)[0]?.subIndex}`
@@ -1328,18 +1330,18 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                 return (
                   <div
                     key={`tip-${bId}`}
-                    className="p-1.5 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between gap-2"
+                    className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2"
                   >
                     <div className="flex items-center gap-1.5">
                       <span
                         className="w-2.5 h-2.5 rounded-full"
                         style={{ backgroundColor: birdInfo.color }}
                       />
-                      <span className="font-bold text-slate-200 text-[11px]">
+                      <span className="font-bold text-slate-900 dark:text-slate-200 text-[11px]">
                         {getBirdName(bId).split(' ')[0]}
                       </span>
                       {pt.isOwnSubPeriod && (
-                        <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono">
+                        <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 font-mono font-bold">
                           Own
                         </span>
                       )}
@@ -1362,22 +1364,22 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
                               : 'rgba(244, 63, 94, 0.2)',
                           color:
                             pt.activity === 'Rule'
-                              ? '#34d399'
+                              ? '#059669'
                               : pt.activity === 'Eat'
-                              ? '#2dd4bf'
+                              ? '#0d9488'
                               : pt.activity === 'Walk'
-                              ? '#fbbf24'
+                              ? '#d97706'
                               : pt.activity === 'Sleep'
-                              ? '#a5b4fc'
-                              : '#fb7185',
+                              ? '#6366f1'
+                              : '#e11d48',
                         }}
                       >
                         {getActivityName(pt.activity)}
                       </span>
 
                       {/* Star Rating Badge (from own sub-period under main jama) */}
-                      <span className="font-mono font-bold text-amber-300 text-[11px] flex items-center gap-0.5">
-                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <span className="font-mono font-bold text-amber-700 dark:text-amber-300 text-[11px] flex items-center gap-0.5">
+                        <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
                         <span>{pt.star}</span>
                       </span>
                     </div>
@@ -1391,19 +1393,19 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
 
       {/* 5. Mini 24-Hour Scrub Bar (Shows when zoomed in) */}
       {zoomX > 1.0 && (
-        <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
-          <div className="flex items-center justify-between text-[10px] text-slate-400">
-            <span className="font-semibold text-slate-300">24-Hour Timeline Scrub:</span>
+        <div className="bg-white dark:bg-slate-950 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1.5 shadow-2xs">
+          <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
+            <span className="font-semibold text-slate-700 dark:text-slate-300">24-Hour Timeline Scrub:</span>
             <span>
               {language === 'ta' ? 'காட்சி நேரம்:' : 'Visible Window:'}{' '}
-              <strong className="text-amber-300 font-mono">
+              <strong className="text-amber-700 dark:text-amber-300 font-mono">
                 {Math.round(visibleDuration / 60)} hrs ({Math.round(panX / 60)}h - {Math.round((panX + visibleDuration) / 60)}h)
               </strong>
             </span>
           </div>
 
           <div
-            className="relative h-6 bg-slate-900 rounded-lg border border-slate-800 cursor-pointer overflow-hidden"
+            className="relative h-6 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 cursor-pointer overflow-hidden"
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const clickX = e.clientX - rect.left;
@@ -1415,9 +1417,9 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
             }}
           >
             {/* 10 Jamas mini ticks */}
-            <div className="absolute inset-0 grid grid-cols-10 divide-x divide-slate-800 pointer-events-none opacity-40">
+            <div className="absolute inset-0 grid grid-cols-10 divide-x divide-slate-200 dark:divide-slate-800 pointer-events-none opacity-40">
               {Array.from({ length: 10 }).map((_, idx) => (
-                <div key={idx} className="flex items-center justify-center text-[8px] font-mono text-slate-400">
+                <div key={idx} className="flex items-center justify-center text-[8px] font-mono text-slate-500 dark:text-slate-400">
                   J{idx + 1}
                 </div>
               ))}
@@ -1425,7 +1427,7 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
 
             {/* Draggable Visible Box */}
             <div
-              className="absolute top-0 bottom-0 bg-amber-500/25 border-2 border-amber-400 rounded-md transition-all pointer-events-none"
+              className="absolute top-0 bottom-0 bg-amber-500/25 border-2 border-amber-500 dark:border-amber-400 rounded-md transition-all pointer-events-none"
               style={{
                 left: `${(panX / totalDuration) * 100}%`,
                 width: `${(visibleDuration / totalDuration) * 100}%`,
@@ -1436,9 +1438,9 @@ export const ActivityChartView: React.FC<ActivityChartViewProps> = ({
       )}
 
       {/* 6. Chart Legend & Informative Footer */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 text-[11px] text-slate-400 border-t border-slate-800/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800/80">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-slate-500 font-semibold">{t('clickToPinNotice')}</span>
+          <span className="text-slate-500 dark:text-slate-500 font-semibold">{t('clickToPinNotice')}</span>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">

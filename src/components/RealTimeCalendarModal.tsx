@@ -196,18 +196,18 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] my-auto select-none">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] my-auto select-none">
         {/* Modal Top Header */}
-        <div className="p-3.5 sm:p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/90 shrink-0">
+        <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/90 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center">
               <CalendarIcon className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-extrabold text-sm sm:text-base text-white tracking-tight flex items-center gap-2">
+              <h2 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                 <span>{t('calendarTitle')}</span>
               </h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 {t('calendarSubtitle')}
               </p>
             </div>
@@ -217,7 +217,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
             onClick={onClose}
             aria-label="Close Calendar"
             id="close-realtime-calendar-btn"
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -226,21 +226,21 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
         {/* Modal Scrollable Body */}
         <div className="p-3 sm:p-4 overflow-y-auto space-y-3.5 text-xs">
           {/* Live Real-Time Banner (Android & Mobile Fast-Sync) */}
-          <div className="bg-gradient-to-r from-amber-500/15 via-slate-900 to-indigo-500/15 border border-amber-500/30 rounded-2xl p-3 sm:p-3.5 shadow-md">
+          <div className="bg-gradient-to-r from-amber-500/10 via-slate-50 dark:via-slate-900 to-indigo-500/10 border border-amber-500/30 rounded-2xl p-3 sm:p-3.5 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-[10px] tracking-wider border border-amber-500/30">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-[10px] tracking-wider border border-amber-500/30">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     <span>{t('liveTodayBadge')}</span>
                   </span>
-                  <span className="text-slate-400 font-mono text-[11px] flex items-center gap-1">
+                  <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] flex items-center gap-1">
                     <Clock className="w-3 h-3 text-slate-400" />
                     <span>{liveNow.toLocaleTimeString()}</span>
                   </span>
                 </div>
 
-                <div className="text-sm font-extrabold text-white flex items-center gap-2 flex-wrap">
+                <div className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2 flex-wrap">
                   <span>
                     {todayLunarInfo.moonEmoji}{' '}
                     {language === 'ta'
@@ -251,12 +251,12 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                       ? 'Valarpirai (Waxing)'
                       : 'Theipirai (Waning)'}
                   </span>
-                  <span className="text-slate-600">•</span>
-                  <span className="text-amber-300 font-bold">
+                  <span className="text-slate-400 dark:text-slate-600">•</span>
+                  <span className="text-amber-700 dark:text-amber-300 font-bold">
                     {getDayName(todayLunarInfo.dayOfWeek)}
                   </span>
-                  <span className="text-slate-600">•</span>
-                  <span className="text-slate-300 font-medium text-xs">
+                  <span className="text-slate-400 dark:text-slate-600">•</span>
+                  <span className="text-slate-600 dark:text-slate-300 font-medium text-xs">
                     {language === 'ta'
                       ? todayLunarInfo.tithiNameTa
                       : todayLunarInfo.tithiNameEn}{' '}
@@ -271,7 +271,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                 type="button"
                 onClick={handleApplyRealtimeToday}
                 id="apply-today-realtime-btn"
-                className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer shrink-0"
+                className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
               >
                 <Zap className="w-3.5 h-3.5 fill-slate-950" />
                 <span>{t('applyTodayBtn')}</span>
@@ -280,7 +280,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
           </div>
 
           {/* Calendar Month & Navigation Controls */}
-          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             {/* Prev / Month / Next */}
             <div className="flex items-center justify-between sm:justify-start gap-2">
               <button
@@ -288,12 +288,12 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                 onClick={handlePrevMonth}
                 aria-label={t('prevMonth')}
                 id="cal-prev-month-btn"
-                className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors"
+                className="p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white cursor-pointer transition-colors shadow-2xs"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center gap-1.5 font-bold text-white text-sm sm:text-base">
+              <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white text-sm sm:text-base">
                 <span>{monthName}</span>
                 <span>{viewYear}</span>
               </div>
@@ -303,7 +303,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                 onClick={handleNextMonth}
                 aria-label={t('nextMonth')}
                 id="cal-next-month-btn"
-                className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors"
+                className="p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white cursor-pointer transition-colors shadow-2xs"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -315,7 +315,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                 type="button"
                 onClick={handleJumpToToday}
                 id="cal-jump-today-btn"
-                className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
               >
                 <span>{t('todayButton')}</span>
               </button>
@@ -325,7 +325,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                 value={viewMonth}
                 onChange={(e) => setViewMonth(Number(e.target.value))}
                 aria-label="Select Month"
-                className="bg-slate-900 border border-slate-700 text-slate-200 text-[11px] rounded-lg px-2 py-1.5 font-medium focus:outline-none focus:border-amber-400"
+                className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-[11px] rounded-lg px-2 py-1.5 font-medium focus:outline-none focus:border-amber-500 shadow-2xs"
               >
                 {Array.from({ length: 12 }).map((_, idx) => (
                   <option key={idx} value={idx}>
@@ -339,7 +339,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                 value={viewYear}
                 onChange={(e) => setViewYear(Number(e.target.value))}
                 aria-label="Select Year"
-                className="bg-slate-900 border border-slate-700 text-slate-200 text-[11px] rounded-lg px-2 py-1.5 font-medium focus:outline-none focus:border-amber-400"
+                className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-[11px] rounded-lg px-2 py-1.5 font-medium focus:outline-none focus:border-amber-500 shadow-2xs"
               >
                 {yearOptions.map((yr) => (
                   <option key={yr} value={yr}>
@@ -354,14 +354,14 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                 onChange={handleDirectDateInput}
                 value={selectedLunarInfo.dateString}
                 aria-label="Select specific date"
-                className="bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg px-2 py-1 font-medium focus:outline-none focus:border-amber-400 w-28 text-center"
+                className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300 text-[11px] rounded-lg px-2 py-1 font-medium focus:outline-none focus:border-amber-500 w-28 text-center shadow-2xs"
                 title={t('datePickerLabel')}
               />
             </div>
           </div>
 
           {/* Monthly Matrix Grid */}
-          <div className="bg-slate-950/90 border border-slate-800 rounded-2xl p-2 sm:p-3 overflow-hidden">
+          <div className="bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-2 sm:p-3 overflow-hidden">
             {/* Weekday Column Headers */}
             <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mb-1.5 text-center">
               {WEEKDAY_KEYS.map((wkDay) => {
@@ -370,7 +370,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                   <div
                     key={wkDay}
                     className={`py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider ${
-                      isWeekend ? 'text-amber-400/90' : 'text-slate-400'
+                      isWeekend ? 'text-amber-700 dark:text-amber-400/90' : 'text-slate-500 dark:text-slate-400'
                     }`}
                   >
                     {getDayShortName(wkDay)}
@@ -386,7 +386,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                   return (
                     <div
                       key={`empty-${idx}`}
-                      className="min-h-[46px] sm:min-h-[58px] rounded-xl bg-slate-950/40 border border-slate-900/40 opacity-20 pointer-events-none"
+                      className="min-h-[46px] sm:min-h-[58px] rounded-xl bg-slate-100 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-900/40 opacity-20 pointer-events-none"
                     />
                   );
                 }
@@ -407,12 +407,12 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                     id={`cal-date-${dayInfo.dateString}`}
                     className={`min-h-[46px] sm:min-h-[58px] p-1 sm:p-1.5 rounded-xl border flex flex-col justify-between items-center text-center transition-all cursor-pointer relative active:scale-95 ${
                       isSelected
-                        ? 'bg-amber-500/25 border-amber-400 text-white shadow-md ring-2 ring-amber-400/60 font-bold z-10'
+                        ? 'bg-amber-500/25 border-amber-500 dark:border-amber-400 text-slate-950 dark:text-white shadow-md ring-2 ring-amber-500/60 dark:ring-amber-400/60 font-bold z-10'
                         : isTodayCell
-                        ? 'bg-slate-800/90 border-emerald-400/70 text-slate-100 ring-1 ring-emerald-400/40'
+                        ? 'bg-emerald-50 dark:bg-slate-800/90 border-emerald-500 dark:border-emerald-400/70 text-slate-900 dark:text-slate-100 ring-1 ring-emerald-500/40'
                         : isValarpirai
-                        ? 'bg-slate-900/90 hover:bg-slate-800 border-amber-500/20 text-slate-200'
-                        : 'bg-slate-900/90 hover:bg-slate-800 border-indigo-500/20 text-slate-200'
+                        ? 'bg-white dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 border-amber-300 dark:border-amber-500/20 text-slate-800 dark:text-slate-200'
+                        : 'bg-white dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 border-indigo-300 dark:border-indigo-500/20 text-slate-800 dark:text-slate-200'
                     }`}
                   >
                     {/* Top Row: Day Number & Today dot */}
@@ -420,10 +420,10 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                       <span
                         className={`text-xs sm:text-sm font-extrabold ${
                           isSelected
-                            ? 'text-amber-300'
+                            ? 'text-amber-800 dark:text-amber-300'
                             : isTodayCell
-                            ? 'text-emerald-300'
-                            : 'text-slate-200'
+                            ? 'text-emerald-700 dark:text-emerald-300'
+                            : 'text-slate-800 dark:text-slate-200'
                         }`}
                       >
                         {dayInfo.dayNumber}
@@ -431,7 +431,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
 
                       {isTodayCell && (
                         <span
-                          className="w-1.5 h-1.5 rounded-full bg-emerald-400 ring-2 ring-emerald-400/30"
+                          className="w-1.5 h-1.5 rounded-full bg-emerald-500 ring-2 ring-emerald-500/30"
                           title="Today"
                         />
                       )}
@@ -448,11 +448,11 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                         className={`text-[9px] sm:text-[10px] px-1 py-0.2 rounded font-semibold block truncate ${
                           isValarpirai
                             ? isSelected
-                              ? 'bg-amber-400 text-slate-950 font-bold'
-                              : 'bg-amber-500/20 text-amber-300'
+                              ? 'bg-amber-500 text-slate-950 font-bold'
+                              : 'bg-amber-500/20 text-amber-800 dark:text-amber-300'
                             : isSelected
-                            ? 'bg-indigo-400 text-slate-950 font-bold'
-                            : 'bg-indigo-500/20 text-indigo-300'
+                            ? 'bg-indigo-500 text-white font-bold'
+                            : 'bg-indigo-500/20 text-indigo-800 dark:text-indigo-300'
                         }`}
                       >
                         {language === 'ta'
@@ -471,33 +471,33 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
           </div>
 
           {/* Selected Date Detail & Pancha Pakshi Preview Card */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3 sm:p-4 space-y-3">
+          <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-4 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400">
                     {language === 'ta' ? 'தேர்ந்தெடுக்கப்பட்ட நாள்:' : 'Selected Date Details:'}
                   </span>
                   {isTodaySelected && (
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/40 font-bold">
                       {t('todayButton')}
                     </span>
                   )}
                   {isCurrentAppSynced && (
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold flex items-center gap-1">
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40 font-bold flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" />
                       <span>{t('appliedNotice')}</span>
                     </span>
                   )}
                 </div>
 
-                <div className="text-base font-extrabold text-white flex items-center gap-2 flex-wrap">
+                <div className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2 flex-wrap">
                   <span>{selectedLunarInfo.moonEmoji}</span>
                   <span
                     className={
                       selectedLunarInfo.paksha === 'valarpirai'
-                        ? 'text-amber-400'
-                        : 'text-indigo-400'
+                        ? 'text-amber-700 dark:text-amber-400'
+                        : 'text-indigo-700 dark:text-indigo-400'
                     }
                   >
                     {language === 'ta'
@@ -508,10 +508,10 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                       ? 'Valarpirai'
                       : 'Theipirai'}
                   </span>
-                  <span className="text-white font-extrabold">
+                  <span className="text-slate-900 dark:text-white font-extrabold">
                     {getDayName(selectedLunarInfo.dayOfWeek)}
                   </span>
-                  <span className="text-slate-400 text-xs font-normal">
+                  <span className="text-slate-500 dark:text-slate-400 text-xs font-normal">
                     (
                     {activeDate.toLocaleDateString(
                       language === 'ta' ? 'ta-IN' : 'en-US',
@@ -538,7 +538,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
                   onClose();
                 }}
                 id="apply-selected-calendar-date-btn"
-                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer shrink-0"
+                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95 cursor-pointer shrink-0"
               >
                 <span>{t('selectThisDateBtn')}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -546,11 +546,11 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
             </div>
 
             {/* Astrological Breakdown: Tithi, Moon Phase, Illumination & Shastra Rulers */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-[11px]">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px]">
               {/* Tithi */}
-              <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-800/80">
-                <span className="text-slate-400 block text-[10px]">{t('tithiLabel')}</span>
-                <span className="font-bold text-white truncate block">
+              <div className="bg-white dark:bg-slate-900/80 p-2 rounded-xl border border-slate-200 dark:border-slate-800/80">
+                <span className="text-slate-500 dark:text-slate-400 block text-[10px]">{t('tithiLabel')}</span>
+                <span className="font-bold text-slate-900 dark:text-white truncate block">
                   {language === 'ta'
                     ? selectedLunarInfo.tithiNameTa
                     : selectedLunarInfo.tithiNameEn}
@@ -558,11 +558,11 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
               </div>
 
               {/* Moon Phase & Illumination */}
-              <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-800/80">
-                <span className="text-slate-400 block text-[10px]">{t('illuminationLabel')}</span>
-                <span className="font-bold text-amber-300 flex items-center gap-1">
+              <div className="bg-white dark:bg-slate-900/80 p-2 rounded-xl border border-slate-200 dark:border-slate-800/80">
+                <span className="text-slate-500 dark:text-slate-400 block text-[10px]">{t('illuminationLabel')}</span>
+                <span className="font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1">
                   <span>{selectedLunarInfo.illuminationPercent}%</span>
-                  <span className="text-[10px] text-slate-400 font-normal">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">
                     {language === 'ta'
                       ? selectedLunarInfo.moonPhaseNameTa
                       : selectedLunarInfo.moonPhaseNameEn}
@@ -571,12 +571,12 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
               </div>
 
               {/* Day Ruler Bird for this calculated date */}
-              <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-800/80">
-                <span className="text-slate-400 block text-[10px] flex items-center gap-1">
-                  <Sun className="w-3 h-3 text-amber-400" />
+              <div className="bg-white dark:bg-slate-900/80 p-2 rounded-xl border border-slate-200 dark:border-slate-800/80">
+                <span className="text-slate-500 dark:text-slate-400 block text-[10px] flex items-center gap-1">
+                  <Sun className="w-3 h-3 text-amber-500" />
                   <span>{t('dayRulerShort')}</span>
                 </span>
-                <span className="font-bold text-amber-200 truncate block">
+                <span className="font-bold text-amber-800 dark:text-amber-200 truncate block">
                   {selectedDayMeta?.dayRulingBird
                     ? getBirdName(selectedDayMeta.dayRulingBird)
                     : '—'}
@@ -584,12 +584,12 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
               </div>
 
               {/* Dying Bird for this calculated date */}
-              <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-800/80">
-                <span className="text-slate-400 block text-[10px] flex items-center gap-1">
-                  <Moon className="w-3 h-3 text-purple-400" />
+              <div className="bg-white dark:bg-slate-900/80 p-2 rounded-xl border border-slate-200 dark:border-slate-800/80">
+                <span className="text-slate-500 dark:text-slate-400 block text-[10px] flex items-center gap-1">
+                  <Moon className="w-3 h-3 text-purple-500" />
                   <span>{t('nightRulerShort')}</span>
                 </span>
-                <span className="font-bold text-purple-200 truncate block">
+                <span className="font-bold text-purple-800 dark:text-purple-200 truncate block">
                   {selectedDayMeta?.nightRulingBird
                     ? getBirdName(selectedDayMeta.nightRulingBird)
                     : '—'}
@@ -600,8 +600,8 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
         </div>
 
         {/* Modal Bottom Footer */}
-        <div className="p-3 bg-slate-950/90 border-t border-slate-800 flex items-center justify-between shrink-0">
-          <span className="text-[11px] text-slate-400 hidden sm:inline">
+        <div className="p-3 bg-slate-50 dark:bg-slate-950/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
             {language === 'ta'
               ? 'வானியல் முறைப்படி சூரிய-சந்திர கோணம் மூலம் கணக்கிடப்படுகிறது.'
               : 'Computed via solar-lunar astronomical elongation equations.'}
@@ -609,7 +609,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer ml-auto transition-colors"
+            className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-300 text-xs font-semibold cursor-pointer ml-auto transition-colors"
           >
             {t('closeBtn')}
           </button>

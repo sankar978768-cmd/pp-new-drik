@@ -12,9 +12,20 @@ import {
 } from '../utils/locationService';
 import { useLanguage } from '../context/LanguageContext';
 
+export type LocationApplyCallback = (
+  sunrise: string,
+  sunset: string,
+  nextSunrise: string,
+  locationName: string,
+  lat?: number,
+  lng?: number,
+  timezone?: string,
+  timezoneOffset?: number
+) => void;
+
 interface LocationSearchBarProps {
   currentLocationName?: string;
-  onApplyLocationSchedule: (sunrise: string, sunset: string, nextSunrise: string, locationName: string) => void;
+  onApplyLocationSchedule: LocationApplyCallback;
   onResetStandard?: () => void;
   isCustomActive?: boolean;
 }
@@ -91,6 +102,8 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
       admin1: location.admin1,
       lat: location.lat,
       lng: location.lng,
+      timezone: location.timezone,
+      timezoneOffset: location.timezoneOffset,
       sunrise: solar.sunrise,
       sunset: solar.sunset,
       nextSunrise: solar.nextSunrise,
@@ -102,7 +115,16 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
     setSearchQuery('');
 
     // Trigger parent schedule update
-    onApplyLocationSchedule(solar.sunrise, solar.sunset, solar.nextSunrise, locDisplayName);
+    onApplyLocationSchedule(
+      solar.sunrise,
+      solar.sunset,
+      solar.nextSunrise,
+      locDisplayName,
+      location.lat,
+      location.lng,
+      location.timezone,
+      location.timezoneOffset
+    );
   };
 
   const handleSelectRecent = (item: RecentLocationSearch) => {
@@ -111,7 +133,16 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
     const locDisplayName = language === 'ta' && item.tamilName ? item.tamilName : item.name;
 
     setActiveLocationId(item.id);
-    onApplyLocationSchedule(solar.sunrise, solar.sunset, solar.nextSunrise, locDisplayName);
+    onApplyLocationSchedule(
+      solar.sunrise,
+      solar.sunset,
+      solar.nextSunrise,
+      locDisplayName,
+      item.lat,
+      item.lng,
+      item.timezone,
+      item.timezoneOffset
+    );
   };
 
   const handleRemoveRecent = (e: React.MouseEvent, id: string) => {
@@ -138,16 +169,16 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
       <div>
         <label
           htmlFor="location-search-input"
-          className="block text-xs font-bold text-amber-300 mb-1.5 flex items-center gap-1.5"
+          className="block text-xs font-bold text-amber-700 dark:text-amber-300 mb-1.5 flex items-center gap-1.5"
         >
-          <Search className="w-3.5 h-3.5 text-amber-400" />
+          <Search className="w-3.5 h-3.5 text-amber-500" />
           <span>{t('locationSearchLabel')}</span>
         </label>
 
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
             {isSearching ? (
-              <Loader2 className="w-4 h-4 text-amber-400 animate-spin" />
+              <Loader2 className="w-4 h-4 text-amber-500 animate-spin" />
             ) : (
               <Search className="w-4 h-4" />
             )}
@@ -164,7 +195,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
               }
             }}
             placeholder={t('searchLocationPlaceholder')}
-            className="w-full pl-9 pr-8 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-colors shadow-inner"
+            className="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-colors shadow-xs"
             autoComplete="off"
           />
 
@@ -176,7 +207,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
                 setResults([]);
                 setIsDropdownOpen(false);
               }}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white cursor-pointer"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
               title="Clear search"
             >
               <X className="w-4 h-4" />
@@ -185,14 +216,14 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
 
           {/* Search Dropdown Results */}
           {isDropdownOpen && (
-            <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden max-h-64 overflow-y-auto">
+            <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden max-h-64 overflow-y-auto">
               {isSearching ? (
-                <div className="p-3 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                <div className="p-3 text-center text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-500" />
                   <span>{t('searchingText')}</span>
                 </div>
               ) : results.length > 0 ? (
-                <ul className="divide-y divide-slate-800 text-xs">
+                <ul className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                   {results.map((loc) => {
                     const solar = computeLocationSolarTimes(loc);
                     const displayName = language === 'ta' && loc.tamilName ? loc.tamilName : loc.name;
@@ -203,18 +234,18 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
                         <button
                           type="button"
                           onClick={() => handleSelectResult(loc)}
-                          className="w-full text-left px-3 py-2.5 hover:bg-slate-800/80 transition-colors flex items-center justify-between gap-2 cursor-pointer"
+                          className="w-full text-left px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors flex items-center justify-between gap-2 cursor-pointer"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                            <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
                               <MapPin className="w-3.5 h-3.5" />
                             </div>
                             <div className="truncate">
-                              <div className="font-bold text-white truncate text-xs sm:text-sm">
+                              <div className="font-bold text-slate-900 dark:text-white truncate text-xs sm:text-sm">
                                 {displayName}
                               </div>
                               {regionDetails && (
-                                <div className="text-[11px] text-slate-400 truncate">
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                                   {regionDetails}
                                 </div>
                               )}
@@ -222,14 +253,14 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
                           </div>
 
                           {/* Solar Preview */}
-                          <div className="text-right shrink-0 font-mono text-[11px] text-slate-300 flex items-center gap-2">
-                            <span className="flex items-center gap-1 text-amber-300">
-                              <Sun className="w-3 h-3 text-amber-400" />
+                          <div className="text-right shrink-0 font-mono text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                            <span className="flex items-center gap-1 text-amber-700 dark:text-amber-300">
+                              <Sun className="w-3.5 h-3.5 text-amber-500" />
                               <span>{solar.sunrise}</span>
                             </span>
-                            <span className="text-slate-600">•</span>
-                            <span className="flex items-center gap-1 text-purple-300">
-                              <Sunset className="w-3 h-3 text-purple-400" />
+                            <span className="text-slate-400 dark:text-slate-600">•</span>
+                            <span className="flex items-center gap-1 text-purple-700 dark:text-purple-300">
+                              <Sunset className="w-3.5 h-3.5 text-purple-500" />
                               <span>{solar.sunset}</span>
                             </span>
                           </div>
@@ -239,7 +270,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
                   })}
                 </ul>
               ) : (
-                <div className="p-3 text-center text-xs text-slate-400">
+                <div className="p-3 text-center text-xs text-slate-500 dark:text-slate-400">
                   {t('noLocationsFound')}
                 </div>
               )}
@@ -251,8 +282,8 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
       {/* 5 Recent Searches Section */}
       <div className="space-y-1.5" id="recent-location-searches-container">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-300 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-amber-400" />
+          <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-amber-500" />
             <span>{t('recentSearchesTitle')}</span>
           </span>
 
@@ -264,8 +295,8 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
               id="standard-preset-chip-btn"
               className={`px-2.5 py-1 rounded-lg text-[11px] font-mono border transition-all cursor-pointer ${
                 !isCustomActive
-                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 font-bold'
-                  : 'bg-slate-900 hover:bg-slate-800 text-slate-400 border-slate-800'
+                  ? 'bg-amber-500/15 border-amber-500/50 text-amber-800 dark:text-amber-300 font-bold'
+                  : 'bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-800'
               }`}
             >
               {t('standardSunTimeBtn')}
@@ -276,7 +307,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
                 type="button"
                 onClick={handleClearAllRecents}
                 id="clear-all-recent-searches-btn"
-                className="text-[11px] text-slate-500 hover:text-rose-400 flex items-center gap-1 transition-colors cursor-pointer"
+                className="text-[11px] text-slate-500 hover:text-rose-500 flex items-center gap-1 transition-colors cursor-pointer"
                 title={t('clearRecentSearchesBtn')}
               >
                 <Trash2 className="w-3 h-3" />
@@ -300,8 +331,8 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
                   id={`recent-search-${rec.id}`}
                   className={`group relative p-2.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between select-none ${
                     isSelected
-                      ? 'bg-amber-500/15 border-amber-500/50 shadow-md shadow-amber-950/20 text-white'
-                      : 'bg-slate-900/90 hover:bg-slate-850 border-slate-800 text-slate-300 hover:border-slate-700'
+                      ? 'bg-amber-500/15 border-amber-500/50 shadow-xs text-slate-900 dark:text-white'
+                      : 'bg-white dark:bg-slate-900/90 hover:bg-slate-50 dark:hover:bg-slate-850 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
                   }`}
                 >
                   {/* Top: Location Name & Delete Button */}
@@ -309,7 +340,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
                     <div className="flex items-center gap-1.5 min-w-0">
                       <MapPin
                         className={`w-3.5 h-3.5 shrink-0 ${
-                          isSelected ? 'text-amber-400' : 'text-slate-400 group-hover:text-amber-400'
+                          isSelected ? 'text-amber-500' : 'text-slate-400 group-hover:text-amber-500'
                         }`}
                       />
                       <span className="font-bold text-xs truncate" title={displayName}>
@@ -320,7 +351,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
                     <button
                       type="button"
                       onClick={(e) => handleRemoveRecent(e, rec.id)}
-                      className="text-slate-500 hover:text-rose-400 p-0.5 rounded transition-colors cursor-pointer"
+                      className="text-slate-400 hover:text-rose-500 p-0.5 rounded transition-colors cursor-pointer"
                       title="Remove"
                       aria-label={`Remove ${displayName}`}
                     >
@@ -329,14 +360,14 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
                   </div>
 
                   {/* Bottom: Sunrise & Sunset */}
-                  <div className="mt-1.5 pt-1.5 border-t border-slate-800/60 flex items-center justify-between text-[11px] font-mono">
-                    <span className="flex items-center gap-1 text-amber-300 font-semibold">
-                      <Sun className="w-3 h-3 text-amber-400" />
+                  <div className="mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-[11px] font-mono">
+                    <span className="flex items-center gap-1 text-amber-700 dark:text-amber-300 font-semibold">
+                      <Sun className="w-3 h-3 text-amber-500" />
                       <span>{rec.sunrise}</span>
                     </span>
-                    <span className="text-slate-600">•</span>
-                    <span className="flex items-center gap-1 text-purple-300 font-semibold">
-                      <Sunset className="w-3 h-3 text-purple-400" />
+                    <span className="text-slate-300 dark:text-slate-600">•</span>
+                    <span className="flex items-center gap-1 text-purple-700 dark:text-purple-300 font-semibold">
+                      <Sunset className="w-3 h-3 text-purple-500" />
                       <span>{rec.sunset}</span>
                     </span>
                   </div>
@@ -345,7 +376,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
             })}
           </div>
         ) : (
-          <div className="p-2 text-center text-xs text-slate-500 bg-slate-900/40 rounded-xl border border-slate-800/50">
+          <div className="p-2 text-center text-xs text-slate-500 bg-slate-100 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-800/50">
             {t('noRecentSearchesText')}
           </div>
         )}
