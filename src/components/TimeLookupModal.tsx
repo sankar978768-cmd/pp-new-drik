@@ -3,7 +3,6 @@ import { BirdId, Jama } from '../types';
 import { BIRDS, ACTIVITY_DETAILS } from '../data/panchaPakshiData';
 import { getCurrentStatus } from '../utils/calculator';
 import { calculateSolarTimes } from '../utils/solarCalculator';
-import { getLocationTimezoneInfo } from '../utils/timezoneService';
 import { LocationSearchBar } from './LocationSearchBar';
 import { Clock, CheckCircle2, ShieldAlert, Sparkles, X, Sunrise, Sunset, Sun, MapPin } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -13,16 +12,7 @@ interface TimeLookupModalProps {
   onClose: () => void;
   selectedBird: BirdId;
   customJamas?: Jama[];
-  onApplySunriseSunset?: (
-    sunrise: string,
-    sunset: string,
-    nextSunrise: string,
-    cityName?: string,
-    lat?: number,
-    lng?: number,
-    timezone?: string,
-    timezoneOffset?: number
-  ) => void;
+  onApplySunriseSunset?: (sunrise: string, sunset: string, nextSunrise: string, cityName?: string) => void;
   currentSunrise?: string;
   currentSunset?: string;
   currentNextSunrise?: string;
@@ -95,16 +85,11 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
       (pos) => {
         setGeoLoading(false);
         const { latitude, longitude } = pos.coords;
-        const tzInfo = getLocationTimezoneInfo({ lat: latitude, lng: longitude });
-        const calc = calculateSolarTimes(latitude, longitude, new Date(), tzInfo.offsetMinutes);
+        const calc = calculateSolarTimes(latitude, longitude);
         setSunriseVal(calc.sunrise);
         setSunsetVal(calc.sunset);
         setNextSunriseVal(calc.nextSunrise);
-        const locName = language === 'ta' ? `ஜிபிஎஸ் (${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°)` : `GPS (${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°)`;
-        setCityNameVal(locName);
-        if (onApplySunriseSunset) {
-          onApplySunriseSunset(calc.sunrise, calc.sunset, calc.nextSunrise, locName, latitude, longitude, undefined, tzInfo.offsetMinutes);
-        }
+        setCityNameVal(language === 'ta' ? `ஜிபிஎஸ் (${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°)` : `GPS (${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°)`);
       },
       (err) => {
         setGeoLoading(false);
@@ -351,13 +336,13 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
               <div className="pt-1">
                 <LocationSearchBar
                   currentLocationName={cityNameVal}
-                  onApplyLocationSchedule={(sr, ss, nsr, locName, lat, lng, tz, tzOff) => {
+                  onApplyLocationSchedule={(sr, ss, nsr, locName) => {
                     setSunriseVal(sr);
                     setSunsetVal(ss);
                     setNextSunriseVal(nsr);
                     setCityNameVal(locName);
                     if (onApplySunriseSunset) {
-                      onApplySunriseSunset(sr, ss, nsr, locName, lat, lng, tz, tzOff);
+                      onApplySunriseSunset(sr, ss, nsr, locName);
                     }
                   }}
                   onResetStandard={() => {

@@ -32,7 +32,7 @@ export const PakshaDaySelector: React.FC<PakshaDaySelectorProps> = ({
   const [pastedData, setPastedData] = useState<string>('');
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
-  const todayLunarInfo = getLunarDayInfo(selectedDate || new Date());
+  const todayLunarInfo = getLunarDayInfo(new Date());
   const isSyncedWithToday =
     selectedPaksha === todayLunarInfo.paksha &&
     selectedDay === todayLunarInfo.dayOfWeek;

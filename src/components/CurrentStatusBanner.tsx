@@ -8,21 +8,11 @@ import { useLanguage } from '../context/LanguageContext';
 interface CurrentStatusBannerProps {
   selectedBird: BirdId;
   customJamas?: Jama[];
-  currentMinutes?: number;
-  isOtherLocation?: boolean;
-  timeDisplayMode?: 'local' | 'ist';
-  tzAbbreviation?: string;
-  locationName?: string;
 }
 
 export const CurrentStatusBanner: React.FC<CurrentStatusBannerProps> = ({
   selectedBird,
   customJamas,
-  currentMinutes: parentMinutes,
-  isOtherLocation = false,
-  timeDisplayMode = 'local',
-  tzAbbreviation = 'Local',
-  locationName,
 }) => {
   const {
     language,
@@ -32,30 +22,21 @@ export const CurrentStatusBanner: React.FC<CurrentStatusBannerProps> = ({
   } = useLanguage();
 
   const [simulatedMinutes, setSimulatedMinutes] = useState<number | null>(null);
-  const [internalLiveMinutes, setInternalLiveMinutes] = useState<number>(() => {
-    if (typeof parentMinutes === 'number') return parentMinutes;
+  const [liveMinutes, setLiveMinutes] = useState<number>(() => {
     const now = new Date();
     return now.getHours() * 60 + now.getMinutes();
   });
 
-  // Keep internalLiveMinutes synchronized with parentMinutes or fallback clock
+  // Ticker for live updates
   useEffect(() => {
-    if (typeof parentMinutes === 'number') {
-      setInternalLiveMinutes(parentMinutes);
-    }
-  }, [parentMinutes]);
-
-  // Ticker for live updates if parent does not provide
-  useEffect(() => {
-    if (typeof parentMinutes === 'number') return;
     const interval = setInterval(() => {
       const now = new Date();
-      setInternalLiveMinutes(now.getHours() * 60 + now.getMinutes());
+      setLiveMinutes(now.getHours() * 60 + now.getMinutes());
     }, 15000);
     return () => clearInterval(interval);
-  }, [parentMinutes]);
+  }, []);
 
-  const activeMinutes = simulatedMinutes !== null ? simulatedMinutes : internalLiveMinutes;
+  const activeMinutes = simulatedMinutes !== null ? simulatedMinutes : liveMinutes;
   const isLive = simulatedMinutes === null;
 
   const status: PanchaPakshiStatus = getCurrentPanchaStatus(
@@ -77,20 +58,25 @@ export const CurrentStatusBanner: React.FC<CurrentStatusBannerProps> = ({
   };
 
   const birdDisplayName = getBirdName(selectedBird);
+  const subBirdDisplayName = getBirdName(status.activeSubPeriod.birdId);
 
   return (
-    <section
-      aria-label="Real-time Status"
-      id="current-status-banner-card"
-      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden transition-all duration-200"
+    <div
+      id="current-status-banner"
+      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-amber-500/30 rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden transition-colors"
     >
-      {/* Top Bar: Live Status & Interactive Minute Scrubber */}
-      <div className="bg-slate-50 dark:bg-slate-950/80 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <div className="flex items-center gap-1.5">
+      {/* Subtle Glow accent */}
+      <div
+        className="absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl opacity-5 dark:opacity-10 pointer-events-none -mr-20 -mt-20"
+        style={{ backgroundColor: bird.color }}
+      />
+
+      {/* Top Header Line */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800/80">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <span
-              className="relative flex h-3 w-3"
-              title={isLive ? 'Real-time Live Synced' : 'Testing custom simulated time'}
+              className={`flex h-3 w-3 relative ${isLive ? '' : 'opacity-60'}`}
             >
               {isLive && (
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -113,14 +99,6 @@ export const CurrentStatusBanner: React.FC<CurrentStatusBannerProps> = ({
             <span className="font-mono font-bold text-slate-900 dark:text-white">
               {status.timeDisplay}
             </span>
-
-            {/* Timezone Badge for Other Location */}
-            {isOtherLocation && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded font-mono font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30">
-                {timeDisplayMode === 'ist' ? 'IST' : tzAbbreviation}
-              </span>
-            )}
-
             <span className="text-slate-400 dark:text-slate-500">•</span>
             <span className="text-amber-700 dark:text-amber-300 font-semibold">
               {status.activeJama.title}
@@ -150,82 +128,95 @@ export const CurrentStatusBanner: React.FC<CurrentStatusBannerProps> = ({
           {!isLive && (
             <button
               onClick={handleResetToLive}
-              id="reset-live-time-scrubber-btn"
-              className="text-[11px] px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-1 transition-colors cursor-pointer"
-              title={t('resetToCurrentLive')}
+              id="reset-to-live-btn"
+              className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
             >
-              <RotateCcw className="w-2.5 h-2.5" />
-              <span>{t('resetToLive')}</span>
+              <RotateCcw className="w-3 h-3 text-amber-500" />
+              <span>{t('resetLive')}</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Main Status Grid: Active Jama & Active Anthardasa */}
-      <div className="p-3.5 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Left: Selected Bird's Main Jama Activity */}
-        <div className="flex items-center gap-3.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center font-extrabold text-xl shrink-0 border shadow-xs"
-            style={{
-              backgroundColor: `${bird.color}20`,
-              borderColor: `${bird.color}60`,
-              color: bird.color,
-            }}
-          >
-            {birdDisplayName[0]}
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {language === 'ta' ? `${birdDisplayName} சாமத் தொழில்` : `${birdDisplayName}'s Jama Activity`}
+      {/* Main Status Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {/* Col 1: Selected Bird's Main Jama Activity */}
+        <div className="bg-slate-50 dark:bg-slate-950/60 rounded-xl p-3.5 border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between">
+          <div>
+            <div className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-1">
+              {birdDisplayName} {t('jamaPhase')}
             </div>
-            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <span className={`text-sm sm:text-base font-extrabold px-2.5 py-0.5 rounded-lg border ${mainActDetail.bgLight}`}>
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-lg font-bold px-2.5 py-0.5 rounded-lg border ${mainActDetail.bgLight}`}
+              >
                 {getActivityName(status.selectedBirdMainActivity)}
               </span>
-              <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
-                {status.activeJama.startTime} – {status.activeJama.endTime}
-              </span>
             </div>
           </div>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">
+            {language === 'ta'
+              ? `நடப்பு 2 மணி 24 நிமிட சாமத்தில் (${status.activeJama.startTime} - ${status.activeJama.endTime}) இத்தொழில் செயல்படுகிறது.`
+              : `Active across the current 2-hour 24-min Jama cycle (${status.activeJama.startTime} - ${status.activeJama.endTime}).`}
+          </p>
         </div>
 
-        {/* Right: Running Sub-Period (Anthardasa) */}
-        <div className="flex items-center gap-3.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center font-extrabold text-xl shrink-0 border shadow-xs"
-            style={{
-              backgroundColor: `${subBird.color}20`,
-              borderColor: `${subBird.color}60`,
-              color: subBird.color,
-            }}
-          >
-            {getBirdName(status.activeSubPeriod.birdId)[0]}
-          </div>
+        {/* Col 2: Active Sub-Period (Anthardasa) */}
+        <div className="bg-slate-50 dark:bg-slate-950/60 rounded-xl p-3.5 border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-1">
+              <span>{t('activeSubPeriod')}</span>
+              <span className="text-slate-400 dark:text-slate-500">
+                #{status.subPeriodIndex + 1} / 5
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-lg font-bold px-2.5 py-0.5 rounded-lg border ${actDetail.bgLight}`}
+                >
+                  {getActivityName(status.activeSubPeriod.activity)}
+                </span>
+                <div>
+                  <div className="text-xs font-bold text-slate-900 dark:text-white">
+                    {subBirdDisplayName}
+                  </div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                    {status.activeSubPeriod.startTime} – {status.activeSubPeriod.endTime}
+                  </div>
+                </div>
+              </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              <span>{language === 'ta' ? 'நடப்பு அந்தர்தசை' : 'Active Sub-Period (Anthardasa)'}</span>
-              <div className="flex items-center text-amber-500 text-xs font-mono font-bold">
-                <Star className="w-3 h-3 fill-amber-400" />
-                <span className="ml-1 text-amber-700 dark:text-amber-300">{status.activeSubPeriod.star}★</span>
+              {/* Star Rating */}
+              <div className="text-right">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-bold">
+                  <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                  <span>{status.activeSubPeriod.star} / 10</span>
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  {t('starStrength')}
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <span className="font-bold text-slate-900 dark:text-white text-sm">
-                {getBirdName(status.activeSubPeriod.birdId)}
+          </div>
+
+          {/* Progress bar */}
+          <div className="mt-3">
+            <div className="flex justify-between text-[11px] text-slate-500 dark:text-slate-400 mb-1">
+              <span>{t('timeRemaining')}</span>
+              <span className="text-slate-800 dark:text-slate-200 font-medium">
+                {status.minutesRemainingInSubPeriod} {t('minLeft')} ({status.activeSubPeriod.durationMinutes}m)
               </span>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded border ${actDetail.bgLight}`}>
-                {getActivityName(status.activeSubPeriod.activity)}
-              </span>
-              <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
-                {status.activeSubPeriod.startTime} – {status.activeSubPeriod.endTime}
-              </span>
+            </div>
+            <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-amber-500 dark:bg-amber-400 h-full rounded-full transition-all duration-300"
+                style={{ width: `${status.progressPercent}%` }}
+              />
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };

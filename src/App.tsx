@@ -16,16 +16,6 @@ import { getLunarDayInfo } from './utils/lunarCalendar';
 import { useLanguage } from './context/LanguageContext';
 import { useTheme } from './context/ThemeContext';
 import {
-  getLocationTimezoneInfo,
-  getTargetLocationCurrentMoment,
-  shiftTimeHHMM,
-  getLocalToISTShiftMinutes,
-  IST_OFFSET_MINUTES,
-  TimeDisplayMode,
-  LocationTimezoneInfo,
-} from './utils/timezoneService';
-import { OFFLINE_CITIES } from './utils/locationService';
-import {
   Sun,
   Moon,
   Table,
@@ -33,7 +23,6 @@ import {
   Search,
   Calendar,
   TrendingUp,
-  MapPin,
 } from 'lucide-react';
 
 export default function App() {
@@ -80,34 +69,7 @@ export default function App() {
   const [jamaFilter, setJamaFilter] = useState<'all' | 'day' | 'night'>('all');
   const [isLookupModalOpen, setIsLookupModalOpen] = useState(false);
 
-  // Location and Timezone states
-  const [locationName, setLocationName] = useState<string>(() => {
-    return localStorage.getItem('pancha_location_name') || '';
-  });
-  const [locationTimezoneOffset, setLocationTimezoneOffset] = useState<number | null>(() => {
-    const saved = localStorage.getItem('pancha_location_tz_offset');
-    return saved !== null ? parseInt(saved, 10) : null;
-  });
-  const [locationTzAbbrev, setLocationTzAbbrev] = useState<string>(() => {
-    return localStorage.getItem('pancha_location_tz_abbrev') || 'IST';
-  });
-  const [timeDisplayMode, setTimeDisplayMode] = useState<TimeDisplayMode>(() => {
-    const saved = localStorage.getItem('pancha_time_display_mode');
-    return saved === 'ist' || saved === 'local' ? (saved as TimeDisplayMode) : 'local';
-  });
-
-  // Raw location local times (before optional IST shift)
-  const [rawLocalSunrise, setRawLocalSunrise] = useState<string>(() => {
-    return localStorage.getItem('pancha_raw_local_sunrise') || '06:00';
-  });
-  const [rawLocalSunset, setRawLocalSunset] = useState<string>(() => {
-    return localStorage.getItem('pancha_raw_local_sunset') || '18:00';
-  });
-  const [rawLocalNextSunrise, setRawLocalNextSunrise] = useState<string>(() => {
-    return localStorage.getItem('pancha_raw_local_next_sunrise') || '06:00';
-  });
-
-  // Active displayed sunrise/sunset (either local or shifted to IST depending on timeDisplayMode)
+  // Custom schedule state (if user changes sunrise/sunset) with localStorage persistence
   const [sunriseTime, setSunriseTime] = useState<string>(() => {
     return localStorage.getItem('pancha_sunrise') || '06:00';
   });
@@ -117,29 +79,14 @@ export default function App() {
   const [nextSunriseTime, setNextSunriseTime] = useState<string>(() => {
     return localStorage.getItem('pancha_next_sunrise') || '06:00';
   });
+  const [locationName, setLocationName] = useState<string>(() => {
+    return localStorage.getItem('pancha_location_name') || '';
+  });
   const [isCustomSchedule, setIsCustomSchedule] = useState<boolean>(() => {
     return localStorage.getItem('pancha_is_custom') === 'true';
   });
 
-  // Detect whether currently selected location is outside IST
-  const isOtherLocation = useMemo(() => {
-    return Boolean(
-      locationTimezoneOffset !== null &&
-      Math.abs(locationTimezoneOffset - IST_OFFSET_MINUTES) > 15
-    );
-  }, [locationTimezoneOffset]);
-
-  // Formatted difference from IST (e.g. "-9h 30m from IST")
-  const timeDifferenceText = useMemo(() => {
-    if (!isOtherLocation || locationTimezoneOffset === null) return '';
-    const diffFromIST = locationTimezoneOffset - IST_OFFSET_MINUTES;
-    const diffHours = Math.floor(Math.abs(diffFromIST) / 60);
-    const diffMins = Math.abs(diffFromIST) % 60;
-    const diffSign = diffFromIST >= 0 ? '+' : '-';
-    return `${diffSign}${diffHours}h${diffMins > 0 ? ` ${diffMins}m` : ''} from IST`;
-  }, [isOtherLocation, locationTimezoneOffset]);
-
-  // Save basic selections to localStorage
+  // Save selections to localStorage
   useEffect(() => {
     localStorage.setItem('pancha_selected_bird', selectedBird);
   }, [selectedBird]);
@@ -164,19 +111,13 @@ export default function App() {
   // If user hasn't explicitly set custom schedule, sync with day default sunrise/sunset
   useEffect(() => {
     if (!isCustomSchedule && baseJamasResult.defaultSunset) {
-      const defSR = baseJamasResult.defaultSunrise || '06:00';
-      const defSS = baseJamasResult.defaultSunset || '18:00';
-      const defNSR = baseJamasResult.defaultNextSunrise || '06:00';
-      setSunriseTime(defSR);
-      setSunsetTime(defSS);
-      setNextSunriseTime(defNSR);
-      setRawLocalSunrise(defSR);
-      setRawLocalSunset(defSS);
-      setRawLocalNextSunrise(defNSR);
+      setSunriseTime(baseJamasResult.defaultSunrise || '06:00');
+      setSunsetTime(baseJamasResult.defaultSunset || '18:00');
+      setNextSunriseTime(baseJamasResult.defaultNextSunrise || '06:00');
     }
   }, [activeDayId, isCustomSchedule, baseJamasResult.defaultSunrise, baseJamasResult.defaultSunset, baseJamasResult.defaultNextSunrise]);
 
-  // Recalculated Jamas based on active sunrise/sunset
+  // Recalculated Jamas if custom sunrise/sunset is active
   const activeJamasList: Jama[] = useMemo(() => {
     if (isCustomSchedule) {
       return recalculateJamas(sunriseTime, sunsetTime, nextSunriseTime, baseJamasResult.jamas);
@@ -184,32 +125,19 @@ export default function App() {
     return baseJamasResult.jamas;
   }, [isCustomSchedule, sunriseTime, sunsetTime, nextSunriseTime, baseJamasResult.jamas]);
 
-  // Live minute ticker for current moment (syncs with local time or IST depending on mode)
+  // Live minute ticker for Jama card highlighting
   const [currentMinutes, setCurrentMinutes] = useState<number>(() => {
     const d = new Date();
-    if (isOtherLocation && timeDisplayMode === 'local' && locationTimezoneOffset !== null) {
-      const localMom = getTargetLocationCurrentMoment(locationTimezoneOffset, d);
-      return localMom.localMinutesFromMidnight;
-    }
-    const istMom = getTargetLocationCurrentMoment(IST_OFFSET_MINUTES, d);
-    return istMom.localMinutesFromMidnight;
+    return d.getHours() * 60 + d.getMinutes();
   });
 
   useEffect(() => {
-    const updateTick = () => {
-      const now = new Date();
-      if (isOtherLocation && timeDisplayMode === 'local' && locationTimezoneOffset !== null) {
-        const localMom = getTargetLocationCurrentMoment(locationTimezoneOffset, now);
-        setCurrentMinutes(localMom.localMinutesFromMidnight);
-      } else {
-        const istMom = getTargetLocationCurrentMoment(IST_OFFSET_MINUTES, now);
-        setCurrentMinutes(istMom.localMinutesFromMidnight);
-      }
-    };
-    updateTick();
-    const interval = setInterval(updateTick, 15000);
+    const interval = setInterval(() => {
+      const d = new Date();
+      setCurrentMinutes(d.getHours() * 60 + d.getMinutes());
+    }, 30000);
     return () => clearInterval(interval);
-  }, [isOtherLocation, timeDisplayMode, locationTimezoneOffset]);
+  }, []);
 
   // Find running Jama based on current time
   const runningJamaNumber = useMemo(() => {
@@ -236,123 +164,18 @@ export default function App() {
   const currentBirdInfo = BIRDS[selectedBird];
   const currentBirdDisplayName = getBirdName(selectedBird);
 
-  // Location & Schedule Application Handler
-  const handleApplySunriseSunset = (
-    sRise: string,
-    sSet: string,
-    nRise: string,
-    locName?: string,
-    lat?: number,
-    lng?: number,
-    timezone?: string,
-    timezoneOffset?: number
-  ) => {
-    let tzInfo: LocationTimezoneInfo;
-    if (typeof lat === 'number' && typeof lng === 'number') {
-      tzInfo = getLocationTimezoneInfo({ lat, lng, timezone, timezoneOffset });
-    } else if (locName) {
-      const matched = OFFLINE_CITIES.find(
-        (c) =>
-          c.name.toLowerCase() === locName.toLowerCase() ||
-          (c.tamilName && c.tamilName === locName) ||
-          locName.toLowerCase().includes(c.name.toLowerCase())
-      );
-      if (matched) {
-        tzInfo = getLocationTimezoneInfo(matched);
-      } else {
-        tzInfo = getLocationTimezoneInfo({
-          lat: 0,
-          lng: 0,
-          timezoneOffset: timezoneOffset ?? IST_OFFSET_MINUTES,
-        });
-      }
-    } else {
-      tzInfo = {
-        offsetMinutes: IST_OFFSET_MINUTES,
-        tzAbbreviation: 'IST',
-        isOtherLocation: false,
-        timeDifferenceText: 'Same as IST',
-      };
-    }
-
-    setLocationTimezoneOffset(tzInfo.offsetMinutes);
-    setLocationTzAbbrev(tzInfo.tzAbbreviation);
-    localStorage.setItem('pancha_location_tz_offset', String(tzInfo.offsetMinutes));
-    localStorage.setItem('pancha_location_tz_abbrev', tzInfo.tzAbbreviation);
-
-    // TARGET LOCATION DATE & DAY CALCULATION:
-    // "while choosing other locations time, date and day calculated by its local time and date, day"
-    const localMoment = getTargetLocationCurrentMoment(tzInfo.offsetMinutes, new Date());
-    setSelectedDay(localMoment.dayOfWeek);
-    setSelectedPaksha(localMoment.paksha);
-    setSelectedCalendarDate(localMoment.localDate);
-    localStorage.setItem('pancha_selected_day', localMoment.dayOfWeek);
-    localStorage.setItem('pancha_selected_paksha', localMoment.paksha);
-    localStorage.setItem('pancha_selected_calendar_date', localMoment.localDate.toISOString());
-
-    // Save Raw Local Times
-    setRawLocalSunrise(sRise);
-    setRawLocalSunset(sSet);
-    setRawLocalNextSunrise(nRise);
-    localStorage.setItem('pancha_raw_local_sunrise', sRise);
-    localStorage.setItem('pancha_raw_local_sunset', sSet);
-    localStorage.setItem('pancha_raw_local_next_sunrise', nRise);
-
-    // Apply active times based on current timeDisplayMode
-    if (tzInfo.isOtherLocation && timeDisplayMode === 'ist') {
-      const shiftMin = getLocalToISTShiftMinutes(tzInfo.offsetMinutes);
-      const istSR = shiftTimeHHMM(sRise, shiftMin);
-      const istSS = shiftTimeHHMM(sSet, shiftMin);
-      const istNSR = shiftTimeHHMM(nRise, shiftMin);
-      setSunriseTime(istSR);
-      setSunsetTime(istSS);
-      setNextSunriseTime(istNSR);
-      localStorage.setItem('pancha_sunrise', istSR);
-      localStorage.setItem('pancha_sunset', istSS);
-      localStorage.setItem('pancha_next_sunrise', istNSR);
-    } else {
-      setSunriseTime(sRise);
-      setSunsetTime(sSet);
-      setNextSunriseTime(nRise);
-      localStorage.setItem('pancha_sunrise', sRise);
-      localStorage.setItem('pancha_sunset', sSet);
-      localStorage.setItem('pancha_next_sunrise', nRise);
-    }
-
+  const handleApplySunriseSunset = (sRise: string, sSet: string, nRise: string, locName?: string) => {
+    setSunriseTime(sRise);
+    setSunsetTime(sSet);
+    setNextSunriseTime(nRise);
     setLocationName(locName || '');
     setIsCustomSchedule(true);
+
+    localStorage.setItem('pancha_sunrise', sRise);
+    localStorage.setItem('pancha_sunset', sSet);
+    localStorage.setItem('pancha_next_sunrise', nRise);
     localStorage.setItem('pancha_location_name', locName || '');
     localStorage.setItem('pancha_is_custom', 'true');
-  };
-
-  // Toggle between Local Time and IST:
-  // "add toggle to switch IST if other locations detected only time convertion not date day convertion from local"
-  const handleToggleTimeDisplayMode = (mode: TimeDisplayMode) => {
-    setTimeDisplayMode(mode);
-    localStorage.setItem('pancha_time_display_mode', mode);
-
-    if (!isOtherLocation || locationTimezoneOffset === null) return;
-
-    // Date & Day stay strictly preserved according to the location's local day!
-    if (mode === 'ist') {
-      const shiftMin = getLocalToISTShiftMinutes(locationTimezoneOffset);
-      const istSR = shiftTimeHHMM(rawLocalSunrise, shiftMin);
-      const istSS = shiftTimeHHMM(rawLocalSunset, shiftMin);
-      const istNSR = shiftTimeHHMM(rawLocalNextSunrise, shiftMin);
-      setSunriseTime(istSR);
-      setSunsetTime(istSS);
-      setNextSunriseTime(istNSR);
-      localStorage.setItem('pancha_sunrise', istSR);
-      localStorage.setItem('pancha_sunset', istSS);
-      localStorage.setItem('pancha_next_sunrise', istNSR);
-    } else {
-      setSunriseTime(rawLocalSunrise);
-      setSunsetTime(rawLocalSunset);
-      setNextSunriseTime(rawLocalNextSunrise);
-      localStorage.setItem('pancha_sunrise', rawLocalSunrise);
-      localStorage.setItem('pancha_sunset', rawLocalSunset);
-      localStorage.setItem('pancha_next_sunrise', rawLocalNextSunrise);
-    }
   };
 
   const handleResetSchedule = () => {
@@ -362,33 +185,14 @@ export default function App() {
     setSunriseTime(defaultSR);
     setSunsetTime(defaultSS);
     setNextSunriseTime(defaultNSR);
-    setRawLocalSunrise(defaultSR);
-    setRawLocalSunset(defaultSS);
-    setRawLocalNextSunrise(defaultNSR);
     setLocationName('');
-    setLocationTimezoneOffset(null);
-    setLocationTzAbbrev('IST');
-    setTimeDisplayMode('local');
     setIsCustomSchedule(false);
 
     localStorage.removeItem('pancha_sunrise');
     localStorage.removeItem('pancha_sunset');
     localStorage.removeItem('pancha_next_sunrise');
-    localStorage.removeItem('pancha_raw_local_sunrise');
-    localStorage.removeItem('pancha_raw_local_sunset');
-    localStorage.removeItem('pancha_raw_local_next_sunrise');
     localStorage.removeItem('pancha_location_name');
-    localStorage.removeItem('pancha_location_tz_offset');
-    localStorage.removeItem('pancha_location_tz_abbrev');
-    localStorage.removeItem('pancha_time_display_mode');
     localStorage.removeItem('pancha_is_custom');
-
-    // Re-sync with real-time astronomical current date
-    const now = new Date();
-    const todayInfo = getLunarDayInfo(now);
-    setSelectedPaksha(todayInfo.paksha);
-    setSelectedDay(todayInfo.dayOfWeek);
-    setSelectedCalendarDate(now);
   };
 
   const handleSelectPakshaAndDay = (paksha: PakshaType, day: DayOfWeek, date?: Date) => {
@@ -428,48 +232,13 @@ export default function App() {
               {currentBirdDisplayName[0]}
             </div>
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
                 <h1 className="text-base sm:text-lg font-extrabold text-slate-950 dark:text-white tracking-tight">
                   {t('appTitle')}
                 </h1>
                 <span className="hidden sm:inline-block text-[11px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 font-mono border border-amber-500/30">
                   {activeDayDisplayName}
                 </span>
-
-                {/* Header IST toggle if other location detected */}
-                {isOtherLocation && (
-                  <div
-                    id="header-other-location-toggle"
-                    className="flex items-center rounded-xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 p-0.5 text-xs font-semibold shadow-2xs"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => handleToggleTimeDisplayMode('local')}
-                      id="header-switch-local-btn"
-                      className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
-                        timeDisplayMode === 'local'
-                          ? 'bg-white dark:bg-slate-800 text-amber-800 dark:text-amber-300 font-bold shadow-2xs'
-                          : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
-                      }`}
-                      title={language === 'ta' ? `${locationName || 'உள்ளூர்'} நேரம்` : `Show times in ${locationName || 'Local'} time`}
-                    >
-                      <span>📍 {locationTzAbbrev}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleToggleTimeDisplayMode('ist')}
-                      id="header-switch-ist-btn"
-                      className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
-                        timeDisplayMode === 'ist'
-                          ? 'bg-amber-500 text-slate-950 font-bold shadow-2xs'
-                          : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
-                      }`}
-                      title={language === 'ta' ? 'இந்திய நேரம் (IST) - நேரத்தை மட்டும் மாற்றும் (நாள் உள்ளூராகவே இருக்கும்)' : 'Switch to Indian Standard Time (IST) - times only, date & day remain local'}
-                    >
-                      <span>🇮🇳 IST</span>
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -607,7 +376,7 @@ export default function App() {
           paksha={selectedPaksha}
         />
 
-        {/* 3. Custom Sunrise & Sunset Schedule Bar with IST / Local Time toggle */}
+        {/* 3. Custom Sunrise & Sunset Schedule Bar */}
         <SunriseSunsetBar
           sunriseTime={sunriseTime}
           sunsetTime={sunsetTime}
@@ -617,23 +386,12 @@ export default function App() {
           onResetSchedule={handleResetSchedule}
           locationName={locationName}
           baseJamas={baseJamasResult.jamas}
-          isOtherLocation={isOtherLocation}
-          timeDisplayMode={timeDisplayMode}
-          onToggleTimeDisplayMode={handleToggleTimeDisplayMode}
-          tzAbbreviation={locationTzAbbrev}
-          timeDifferenceText={timeDifferenceText}
-          localDayName={getDayName(selectedDay)}
         />
 
         {/* 4. Real-Time Status Banner for Selected Bird */}
         <CurrentStatusBanner
           selectedBird={selectedBird}
           customJamas={activeJamasList}
-          currentMinutes={currentMinutes}
-          isOtherLocation={isOtherLocation}
-          timeDisplayMode={timeDisplayMode}
-          tzAbbreviation={locationTzAbbrev}
-          locationName={locationName}
         />
 
         {/* 5. Navigation Tabs */}

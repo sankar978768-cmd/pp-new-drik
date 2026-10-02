@@ -460,12 +460,6 @@ const UI_TEXT: Record<Language, Record<string, string>> = {
     themeDark: 'Dark',
     themeBright: 'Bright',
     themeToggle: 'Toggle Theme',
-    timeModeLocal: 'Local Time',
-    timeModeIST: 'IST (India Time)',
-    otherLocationDetected: 'Other Location Detected',
-    switchToIST: 'Switch to IST',
-    timesInISTNotice: 'Times converted to IST (UTC+5:30) • Local Day & Date preserved',
-    timesInLocalNotice: 'Times in local location time',
   },
   ta: {
     appTitle: 'பஞ்ச பட்சி கணக்கீடு',
@@ -663,12 +657,6 @@ const UI_TEXT: Record<Language, Record<string, string>> = {
     themeDark: 'இருள்',
     themeBright: 'வெளிச்சம்',
     themeToggle: 'தோற்றம் மாற்று',
-    timeModeLocal: 'உள்ளூர் நேரம்',
-    timeModeIST: 'இந்திய நேரம் (IST)',
-    otherLocationDetected: 'பிற இடம் கண்டறியப்பட்டது',
-    switchToIST: 'IST நேரத்திற்கு மாற்றுக',
-    timesInISTNotice: 'நேரங்கள் இந்திய நேரத்திற்கு (IST) மாற்றப்பட்டுள்ளன • உள்ளூர் நாள் & தேதி பாதுகாக்கப்பட்டுள்ளது',
-    timesInLocalNotice: 'உள்ளூர் நேர அமைப்பில்',
   },
 };
 

@@ -12,20 +12,9 @@ import {
 } from '../utils/locationService';
 import { useLanguage } from '../context/LanguageContext';
 
-export type LocationApplyCallback = (
-  sunrise: string,
-  sunset: string,
-  nextSunrise: string,
-  locationName: string,
-  lat?: number,
-  lng?: number,
-  timezone?: string,
-  timezoneOffset?: number
-) => void;
-
 interface LocationSearchBarProps {
   currentLocationName?: string;
-  onApplyLocationSchedule: LocationApplyCallback;
+  onApplyLocationSchedule: (sunrise: string, sunset: string, nextSunrise: string, locationName: string) => void;
   onResetStandard?: () => void;
   isCustomActive?: boolean;
 }
@@ -102,8 +91,6 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
       admin1: location.admin1,
       lat: location.lat,
       lng: location.lng,
-      timezone: location.timezone,
-      timezoneOffset: location.timezoneOffset,
       sunrise: solar.sunrise,
       sunset: solar.sunset,
       nextSunrise: solar.nextSunrise,
@@ -115,16 +102,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
     setSearchQuery('');
 
     // Trigger parent schedule update
-    onApplyLocationSchedule(
-      solar.sunrise,
-      solar.sunset,
-      solar.nextSunrise,
-      locDisplayName,
-      location.lat,
-      location.lng,
-      location.timezone,
-      location.timezoneOffset
-    );
+    onApplyLocationSchedule(solar.sunrise, solar.sunset, solar.nextSunrise, locDisplayName);
   };
 
   const handleSelectRecent = (item: RecentLocationSearch) => {
@@ -133,16 +111,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
     const locDisplayName = language === 'ta' && item.tamilName ? item.tamilName : item.name;
 
     setActiveLocationId(item.id);
-    onApplyLocationSchedule(
-      solar.sunrise,
-      solar.sunset,
-      solar.nextSunrise,
-      locDisplayName,
-      item.lat,
-      item.lng,
-      item.timezone,
-      item.timezoneOffset
-    );
+    onApplyLocationSchedule(solar.sunrise, solar.sunset, solar.nextSunrise, locDisplayName);
   };
 
   const handleRemoveRecent = (e: React.MouseEvent, id: string) => {
