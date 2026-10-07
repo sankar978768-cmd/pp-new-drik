@@ -68,6 +68,35 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
   const birdDisplayName = getBirdName(selectedBird);
   const act = ACTIVITY_DETAILS[result.activeSubPeriod.activity];
 
+  const handleSetPresetTime = (hours: number, minutes: number) => {
+    let h = hours;
+    let period: 'AM' | 'PM' = 'AM';
+    if (h >= 12) {
+      period = 'PM';
+      if (h > 12) h -= 12;
+    }
+    if (h === 0) h = 12;
+    const hStr = h < 10 ? `0${h}` : `${h}`;
+    const mStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
+    setInputTime(`${hStr}:${mStr}`);
+    setAmPm(period);
+  };
+
+  const handleSetNow = () => {
+    const d = new Date();
+    handleSetPresetTime(d.getHours(), d.getMinutes());
+  };
+
+  const handleAdjustMinutes = (delta: number) => {
+    const [hS, mS] = inputTime.split(':');
+    let totalMins = (parseInt(hS || '0', 10) % 12) * 60 + parseInt(mS || '0', 10);
+    if (amPm === 'PM') totalMins += 720;
+    totalMins = (totalMins + delta + 1440) % 1440;
+    const newH = Math.floor(totalMins / 60);
+    const newM = totalMins % 60;
+    handleSetPresetTime(newH, newM);
+  };
+
   const handleApplySun = () => {
     if (onApplySunriseSunset) {
       onApplySunriseSunset(sunriseVal, sunsetVal, nextSunriseVal, cityNameVal || undefined);
@@ -112,18 +141,19 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
           <button
             onClick={onClose}
             id="close-time-lookup-btn"
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            aria-label="Close"
+            className="min-h-[44px] min-w-[44px] rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs shrink-0">
           <button
             onClick={() => setActiveTab('lookup')}
             id="tab-lookup-btn"
-            className={`flex-1 py-2.5 font-semibold text-center transition-colors cursor-pointer border-b-2 ${
+            className={`flex-1 min-h-[44px] py-2.5 font-semibold text-center transition-colors cursor-pointer border-b-2 flex items-center justify-center ${
               activeTab === 'lookup'
                 ? 'border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/10 font-bold'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -134,7 +164,7 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
           <button
             onClick={() => setActiveTab('sun-config')}
             id="tab-sun-config-btn"
-            className={`flex-1 py-2.5 font-semibold text-center transition-colors cursor-pointer border-b-2 ${
+            className={`flex-1 min-h-[44px] py-2.5 font-semibold text-center transition-colors cursor-pointer border-b-2 flex items-center justify-center ${
               activeTab === 'sun-config'
                 ? 'border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/10 font-bold'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -144,12 +174,12 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
           </button>
         </div>
 
-        <div className="p-4 overflow-y-auto space-y-4">
+        <div className="p-3 sm:p-4 overflow-y-auto space-y-4">
           {activeTab === 'lookup' ? (
             <>
               {/* Time Input Controls */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   {language === 'ta'
                     ? `${birdDisplayName} பட்சிக்கான நேரத்தைத் தேர்ந்தெடுக்கவும்`
                     : `Select Time to Calculate for ${birdDisplayName}`}
@@ -160,13 +190,13 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
                     value={inputTime}
                     onChange={(e) => setInputTime(e.target.value)}
                     id="lookup-time-input"
-                    className="bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-mono text-sm w-full focus:outline-none focus:border-amber-500"
+                    className="min-h-[46px] bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white font-mono text-base w-full focus:outline-none focus:border-amber-500 shadow-2xs"
                   />
                   <div className="flex rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-1 shrink-0">
                     <button
                       type="button"
                       onClick={() => setAmPm('AM')}
-                      className={`px-3 py-1 text-xs rounded-lg font-bold transition-colors cursor-pointer ${
+                      className={`min-h-[40px] px-3.5 py-1.5 text-xs rounded-lg font-extrabold transition-all cursor-pointer ${
                         amPm === 'AM'
                           ? 'bg-amber-500 text-slate-950 shadow-xs'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -177,7 +207,7 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setAmPm('PM')}
-                      className={`px-3 py-1 text-xs rounded-lg font-bold transition-colors cursor-pointer ${
+                      className={`min-h-[40px] px-3.5 py-1.5 text-xs rounded-lg font-extrabold transition-all cursor-pointer ${
                         amPm === 'PM'
                           ? 'bg-amber-500 text-slate-950 shadow-xs'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -187,6 +217,63 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
                     </button>
                   </div>
                 </div>
+
+                {/* 1-Tap Mobile Presets for Android Touch Ease */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none pt-1">
+                  <button
+                    type="button"
+                    onClick={handleSetNow}
+                    id="modal-preset-now"
+                    className="min-h-[38px] px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-bold whitespace-nowrap cursor-pointer transition-colors active:scale-95 flex items-center gap-1 shrink-0"
+                  >
+                    <span>⚡ {t('nowPreset')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAdjustMinutes(30)}
+                    id="modal-preset-plus30m"
+                    className="min-h-[38px] px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 text-xs font-semibold whitespace-nowrap cursor-pointer transition-colors active:scale-95 shrink-0"
+                  >
+                    {t('plus30m')}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAdjustMinutes(60)}
+                    id="modal-preset-plus1h"
+                    className="min-h-[38px] px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 text-xs font-semibold whitespace-nowrap cursor-pointer transition-colors active:scale-95 shrink-0"
+                  >
+                    {t('plus1h')}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSetPresetTime(6, 0)}
+                    id="modal-preset-sunrise"
+                    className="min-h-[38px] px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 text-xs font-semibold whitespace-nowrap cursor-pointer transition-colors active:scale-95 shrink-0"
+                  >
+                    06:00 AM
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSetPresetTime(12, 0)}
+                    id="modal-preset-noon"
+                    className="min-h-[38px] px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 text-xs font-semibold whitespace-nowrap cursor-pointer transition-colors active:scale-95 shrink-0"
+                  >
+                    12:00 PM
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSetPresetTime(18, 0)}
+                    id="modal-preset-sunset"
+                    className="min-h-[38px] px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 text-xs font-semibold whitespace-nowrap cursor-pointer transition-colors active:scale-95 shrink-0"
+                  >
+                    06:00 PM
+                  </button>
+                </div>
               </div>
 
               {/* Calculation Result Card */}
@@ -194,7 +281,7 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
                 <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
                   <div>
                     <span className="text-xs text-slate-500 dark:text-slate-400">{language === 'ta' ? 'தேர்ந்தெடுத்த நேரம்:' : 'Target Time:'}</span>
-                    <div className="text-base font-bold font-mono text-slate-900 dark:text-white">
+                    <div className="text-lg font-bold font-mono text-slate-900 dark:text-white">
                       {result.timeDisplay}
                     </div>
                   </div>
@@ -206,20 +293,20 @@ export const TimeLookupModal: React.FC<TimeLookupModalProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
                     <div className="text-[11px] text-slate-500 dark:text-slate-400">
                       {language === 'ta' ? 'பட்சியின் முக்கிய தொழில்:' : "Selected Bird's Jama State:"}
                     </div>
                     <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
                       {getActivityName(result.selectedBirdMainActivity)}
                     </div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                       {result.activeJama.startTime} – {result.activeJama.endTime}
                     </div>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                  <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
                     <div className="text-[11px] text-slate-500 dark:text-slate-400">
                       {language === 'ta' ? 'அந்தர்தசை தொழில்:' : 'Active Sub-Period (Anthardasa):'}
                     </div>

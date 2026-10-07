@@ -2,6 +2,15 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-warm-ivory: #FAF6EE;
+  --color-forest-green: #1B4332;
+  --color-deep-bluegreen: #133E46;
+  --color-antique-gold: #C29738;
+  --color-soft-green: #2E7D56;
+  --color-warm-gold: #D49B28;
+}
+
 @layer base {
   html {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -10,8 +19,8 @@
   }
 
   body {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #FAF6EE;
+    color: #1e293b;
   }
 
   body.dark {
@@ -27,7 +36,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #F2ECE1;
 }
 
 .dark ::-webkit-scrollbar-track {
@@ -35,7 +44,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #D9CEBA;
   border-radius: 4px;
 }
 
@@ -44,7 +53,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #C2B49D;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {

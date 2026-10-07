@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { BirdId, Jama, PakshaType, DayOfWeek } from './types';
 import { BIRDS } from './data/panchaPakshiData';
 import { recalculateJamas } from './utils/calculator';
 import { getBaseJamasForDay, PANCHA_PAKSHI_DAYS } from './data/panchaPakshiRegistry';
+import { FixedTopHeader } from './components/FixedTopHeader';
+import { FixedBottomNav } from './components/FixedBottomNav';
 import { PakshaDaySelector } from './components/PakshaDaySelector';
 import { BirdSelector } from './components/BirdSelector';
 import { SunriseSunsetBar } from './components/SunriseSunsetBar';
@@ -20,8 +22,6 @@ import {
   Moon,
   Table,
   Layers,
-  Search,
-  Calendar,
   TrendingUp,
 } from 'lucide-react';
 
@@ -214,271 +214,210 @@ export default function App() {
     return true;
   });
 
-  const activeDayDisplayName = dayMeta
-    ? (language === 'ta' ? dayMeta.tamilName : dayMeta.name)
-    : `${getPakshaName(selectedPaksha)} ${getDayName(selectedDay)}`;
+  // Active section for 4-column navigation
+  const [activeSection, setActiveSection] = useState<string>('section-date-day');
+  const isScrollingByUserRef = useRef(false);
+  const scrollTimeoutRef = useRef<number | null>(null);
+
+  // Smooth-scroll directly to section with header offset compensation
+  const scrollToSection = (sectionId: string) => {
+    setActiveSection(sectionId);
+    isScrollingByUserRef.current = true;
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = window.setTimeout(() => {
+      isScrollingByUserRef.current = false;
+    }, 700);
+
+    const el = document.getElementById(sectionId);
+    if (!el) return;
+    const header = document.getElementById('fixed-top-header');
+    const headerHeight = header ? header.getBoundingClientRect().height : 100;
+    const elementPosition = el.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerHeight - 12;
+
+    window.scrollTo({
+      top: Math.max(0, offsetPosition),
+      behavior: 'smooth',
+    });
+  };
+
+  // Scroll spy to update active section when user scrolls
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isScrollingByUserRef.current) return;
+      const header = document.getElementById('fixed-top-header');
+      const headerHeight = header ? header.getBoundingClientRect().height : 100;
+      const scrollPos = window.scrollY + headerHeight + 50;
+
+      const sectionIds = ['section-date-day', 'section-location', 'section-bird', 'section-activity'];
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const id = sectionIds[i];
+        const el = document.getElementById(id);
+        if (el) {
+          const top = el.offsetTop;
+          if (scrollPos >= top) {
+            setActiveSection(id);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950 transition-colors duration-150">
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-6 py-2.5 transition-colors">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          {/* Logo & App Title */}
-          <div className="flex items-center gap-2.5">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-slate-950 shadow-sm text-base shrink-0"
-              style={{ backgroundColor: currentBirdInfo.color }}
-            >
-              {currentBirdDisplayName[0]}
+    <div className="min-h-screen bg-[#FAF6EE] dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-[#1B4332] selection:text-white transition-colors duration-150">
+      {/* Pinned FixedTopHeader: Stays permanently fixed at the top of the viewport (fixed top-0 z-40) */}
+      <FixedTopHeader
+        selectedPaksha={selectedPaksha}
+        selectedDay={selectedDay}
+        selectedCalendarDate={selectedCalendarDate}
+        locationName={locationName}
+        dayMeta={dayMeta}
+        runningJamaNumber={runningJamaNumber}
+        onScrollToSection={scrollToSection}
+        selectedBird={selectedBird}
+        onSelectBird={(id) => setSelectedBird(id)}
+        onOpenCalendarModal={() => setIsCalendarModalOpen(true)}
+        onOpenLookupModal={() => setIsLookupModalOpen(true)}
+        theme={theme}
+        setTheme={setTheme}
+        language={language}
+        setLanguage={setLanguage}
+      />
+
+      {/* Main Content Body with top & bottom padding compensating for fixed header and bottom nav */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-5 lg:p-6 space-y-5 pt-16 sm:pt-20 pb-24 sm:pb-20">
+        {/* Section 1: Date & Day (Paksha & Day selector) */}
+        <section id="section-date-day" aria-label="Date & Day Selector" className="scroll-mt-16 sm:scroll-mt-20">
+          <PakshaDaySelector
+            selectedPaksha={selectedPaksha}
+            selectedDay={selectedDay}
+            onSelectPakshaAndDay={handleSelectPakshaAndDay}
+            onCustomDayUploaded={handleCustomDayUploaded}
+            onOpenCalendar={() => setIsCalendarModalOpen(true)}
+            selectedDate={selectedCalendarDate}
+          />
+        </section>
+
+        {/* Section 2: Location (Sunrise, sunset & custom location calculations) */}
+        <section id="section-location" aria-label="Sunrise, Sunset & Location" className="scroll-mt-16 sm:scroll-mt-20">
+          <SunriseSunsetBar
+            sunriseTime={sunriseTime}
+            sunsetTime={sunsetTime}
+            nextSunriseTime={nextSunriseTime}
+            isCustomSchedule={isCustomSchedule}
+            onApplySunriseSunset={handleApplySunriseSunset}
+            onResetSchedule={handleResetSchedule}
+            locationName={locationName}
+            baseJamas={baseJamasResult.jamas}
+          />
+        </section>
+
+        {/* Section 3: Bird (Bird selector and real-time status banner) */}
+        <section id="section-bird" aria-label="Bird Selection & Status" className="scroll-mt-16 sm:scroll-mt-20 space-y-5">
+          <BirdSelector
+            selectedBird={selectedBird}
+            onSelectBird={(id) => setSelectedBird(id)}
+            dayMeta={dayMeta}
+            paksha={selectedPaksha}
+          />
+
+          <CurrentStatusBanner
+            selectedBird={selectedBird}
+            customJamas={activeJamasList}
+          />
+        </section>
+
+        {/* Section 4: Activity (10 Jamas cards, activity chart, and master table) */}
+        <section id="section-activity" aria-label="Jamas & Activity Cycles" className="scroll-mt-16 sm:scroll-mt-20 space-y-5">
+          {/* Navigation Tabs */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8DFCE] dark:border-slate-800 pb-3">
+            {/* Main Views */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs font-semibold">
+              <button
+                onClick={() => setActiveTab('jamas')}
+                id="tab-jamas-btn"
+                className={`px-4 py-2.5 min-h-[48px] rounded-2xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'jamas'
+                    ? 'bg-[#1B4332] text-white font-bold shadow-xs'
+                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white hover:bg-[#EFE7D8] dark:hover:bg-slate-900'
+                }`}
+              >
+                <Layers className="w-4 h-4" strokeWidth={1.5} />
+                <span>{t('tabJamas')}</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('chart')}
+                id="tab-chart-btn"
+                className={`px-4 py-2.5 min-h-[48px] rounded-2xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'chart'
+                    ? 'bg-[#1B4332] text-white font-bold shadow-xs'
+                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white hover:bg-[#EFE7D8] dark:hover:bg-slate-900'
+                }`}
+              >
+                <TrendingUp className="w-4 h-4" strokeWidth={1.5} />
+                <span>{t('tabChart')}</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('master')}
+                id="tab-master-btn"
+                className={`px-4 py-2.5 min-h-[48px] rounded-2xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'master'
+                    ? 'bg-[#1B4332] text-white font-bold shadow-xs'
+                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white hover:bg-[#EFE7D8] dark:hover:bg-slate-900'
+                }`}
+              >
+                <Table className="w-4 h-4" strokeWidth={1.5} />
+                <span>{t('tabMaster')}</span>
+              </button>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-extrabold text-slate-950 dark:text-white tracking-tight">
-                  {t('appTitle')}
-                </h1>
-                <span className="hidden sm:inline-block text-[11px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 font-mono border border-amber-500/30">
-                  {activeDayDisplayName}
-                </span>
+
+            {/* Sub-Filter for Day/Night when in Jamas tab */}
+            {activeTab === 'jamas' && (
+              <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-[#E8DFCE] dark:border-slate-800 text-xs self-start sm:self-auto shadow-2xs">
+                <button
+                  onClick={() => setJamaFilter('all')}
+                  id="jama-filter-all-btn"
+                  className={`px-3 py-1.5 rounded-xl transition-colors cursor-pointer font-bold ${
+                    jamaFilter === 'all'
+                      ? 'bg-[#FAF6EE] dark:bg-slate-800 text-slate-900 dark:text-white border border-[#E8DFCE] dark:border-slate-700'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                >
+                  {t('filterAllJamas')}
+                </button>
+                <button
+                  onClick={() => setJamaFilter('day')}
+                  id="jama-filter-day-btn"
+                  className={`px-3 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 font-bold ${
+                    jamaFilter === 'day'
+                      ? 'bg-[#C29738] text-slate-950 shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                >
+                  <Sun className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  <span>{t('filterDayJamas')}</span>
+                </button>
+                <button
+                  onClick={() => setJamaFilter('night')}
+                  id="jama-filter-night-btn"
+                  className={`px-3 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 font-bold ${
+                    jamaFilter === 'night'
+                      ? 'bg-[#133E46] text-white shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                >
+                  <Moon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  <span>{t('filterNightJamas')}</span>
+                </button>
               </div>
-            </div>
+            )}
           </div>
-
-          {/* Right Action Controls: Theme Toggle, Language Switch & Tools */}
-          <div className="flex items-center gap-2">
-            {/* Quick mobile bird switcher */}
-            <div className="sm:hidden">
-              <select
-                value={selectedBird}
-                onChange={(e) => setSelectedBird(e.target.value as BirdId)}
-                aria-label="Quick Select Bird"
-                id="mobile-quick-bird-select"
-                className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-amber-500/50 text-xs font-bold text-slate-800 dark:text-amber-300 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-xs"
-              >
-                <option value="vulture">🦅 {getBirdName('vulture')}</option>
-                <option value="owl">🦉 {getBirdName('owl')}</option>
-                <option value="crow">🐦 {getBirdName('crow')}</option>
-                <option value="cock">🐓 {getBirdName('cock')}</option>
-                <option value="peacock">🦚 {getBirdName('peacock')}</option>
-              </select>
-            </div>
-
-            {/* Dark & Bright Mode Toggle */}
-            <div
-              id="theme-mode-toggle-container"
-              className="flex items-center rounded-xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 p-0.5 text-xs font-semibold shadow-2xs shrink-0"
-            >
-              <button
-                type="button"
-                onClick={() => setTheme('bright')}
-                id="theme-switch-bright-btn"
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                  !isDark
-                    ? 'bg-white text-slate-950 font-bold shadow-xs'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-                title={language === 'ta' ? 'வெளிச்சத் தோற்றம்' : 'Bright Mode'}
-              >
-                <Sun className={`w-3.5 h-3.5 ${!isDark ? 'text-amber-500 fill-amber-500/20' : 'text-slate-400'}`} />
-                <span className="hidden md:inline">{t('themeBright')}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setTheme('dark')}
-                id="theme-switch-dark-btn"
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                  isDark
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-                title={language === 'ta' ? 'இருள் தோற்றம்' : 'Dark Mode'}
-              >
-                <Moon className={`w-3.5 h-3.5 ${isDark ? 'fill-slate-950 text-slate-950' : 'text-slate-500'}`} />
-                <span className="hidden md:inline">{t('themeDark')}</span>
-              </button>
-            </div>
-
-            {/* Language Switch Button */}
-            <div
-              id="language-switch-container"
-              className="flex items-center rounded-xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 p-0.5 text-xs font-semibold shadow-2xs shrink-0"
-            >
-              <button
-                type="button"
-                onClick={() => setLanguage('en')}
-                id="lang-switch-en-btn"
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                  language === 'en'
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-                title="Switch to English"
-              >
-                English
-              </button>
-              <button
-                type="button"
-                onClick={() => setLanguage('ta')}
-                id="lang-switch-ta-btn"
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                  language === 'ta'
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-                title="தமிழுக்கு மாறவும்"
-              >
-                தமிழ்
-              </button>
-            </div>
-
-            {/* Real-time Astronomical Calendar Button */}
-            <button
-              onClick={() => setIsCalendarModalOpen(true)}
-              id="open-calendar-nav-btn"
-              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
-              title={t('realtimeCalendar')}
-            >
-              <Calendar className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span className="hidden sm:inline">{t('realtimeCalendar')}</span>
-            </button>
-
-            {/* Time Lookup Modal Button */}
-            <button
-              onClick={() => setIsLookupModalOpen(true)}
-              id="open-time-lookup-modal-btn"
-              className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-2xs"
-              title={t('timeLookup')}
-            >
-              <Search className="w-3.5 h-3.5 text-amber-500" />
-              <span className="hidden xs:inline">{t('timeLookup')}</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 space-y-4 sm:space-y-5">
-        {/* 1. Paksha & Day of Week Selector (14 Day Calculations) */}
-        <PakshaDaySelector
-          selectedPaksha={selectedPaksha}
-          selectedDay={selectedDay}
-          onSelectPakshaAndDay={handleSelectPakshaAndDay}
-          onCustomDayUploaded={handleCustomDayUploaded}
-          onOpenCalendar={() => setIsCalendarModalOpen(true)}
-          selectedDate={selectedCalendarDate}
-        />
-
-        {/* 2. Bird Selector Section (Simplified, clean cards) */}
-        <BirdSelector
-          selectedBird={selectedBird}
-          onSelectBird={(id) => setSelectedBird(id)}
-          dayMeta={dayMeta}
-          paksha={selectedPaksha}
-        />
-
-        {/* 3. Custom Sunrise & Sunset Schedule Bar */}
-        <SunriseSunsetBar
-          sunriseTime={sunriseTime}
-          sunsetTime={sunsetTime}
-          nextSunriseTime={nextSunriseTime}
-          isCustomSchedule={isCustomSchedule}
-          onApplySunriseSunset={handleApplySunriseSunset}
-          onResetSchedule={handleResetSchedule}
-          locationName={locationName}
-          baseJamas={baseJamasResult.jamas}
-        />
-
-        {/* 4. Real-Time Status Banner for Selected Bird */}
-        <CurrentStatusBanner
-          selectedBird={selectedBird}
-          customJamas={activeJamasList}
-        />
-
-        {/* 5. Navigation Tabs */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-2">
-          {/* Main Views */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs font-semibold">
-            <button
-              onClick={() => setActiveTab('jamas')}
-              id="tab-jamas-btn"
-              className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === 'jamas'
-                  ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-900'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>{t('tabJamas')}</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('chart')}
-              id="tab-chart-btn"
-              className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === 'chart'
-                  ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-900'
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>{t('tabChart')}</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('master')}
-              id="tab-master-btn"
-              className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === 'master'
-                  ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-900'
-              }`}
-            >
-              <Table className="w-3.5 h-3.5" />
-              <span>{t('tabMaster')}</span>
-            </button>
-          </div>
-
-          {/* Sub-Filter for Day/Night when in Jamas tab */}
-          {activeTab === 'jamas' && (
-            <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs self-start sm:self-auto shadow-2xs">
-              <button
-                onClick={() => setJamaFilter('all')}
-                id="jama-filter-all-btn"
-                className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                  jamaFilter === 'all'
-                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-              >
-                {t('filterAllJamas')}
-              </button>
-              <button
-                onClick={() => setJamaFilter('day')}
-                id="jama-filter-day-btn"
-                className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
-                  jamaFilter === 'day'
-                    ? 'bg-amber-500 text-slate-950 font-bold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-              >
-                <Sun className="w-3 h-3 text-amber-500" />
-                <span>{t('filterDayJamas')}</span>
-              </button>
-              <button
-                onClick={() => setJamaFilter('night')}
-                id="jama-filter-night-btn"
-                className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
-                  jamaFilter === 'night'
-                    ? 'bg-purple-600 text-white font-bold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-              >
-                <Moon className="w-3 h-3 text-purple-400" />
-                <span>{t('filterNightJamas')}</span>
-              </button>
-            </div>
-          )}
-        </div>
 
         {/* 6. Tab Contents */}
         {activeTab === 'jamas' && (
@@ -577,6 +516,7 @@ export default function App() {
             customJamas={activeJamasList}
           />
         )}
+        </section>
       </main>
 
       {/* Time Lookup & Sunrise/Sunset Modal */}
@@ -602,6 +542,12 @@ export default function App() {
         currentDay={selectedDay}
         onSelectPakshaAndDay={handleSelectPakshaAndDay}
         selectedDate={selectedCalendarDate}
+      />
+
+      {/* Equal 4-Column Layout Fixed Bottom Navigation Bar */}
+      <FixedBottomNav
+        activeSection={activeSection}
+        onScrollToSection={scrollToSection}
       />
     </div>
   );

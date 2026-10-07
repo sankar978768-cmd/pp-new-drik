@@ -66,24 +66,24 @@ export const BirdSelector: React.FC<BirdSelectorProps> = ({ selectedBird, onSele
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               id={`bird-select-btn-${bird.id}`}
-              className={`relative flex flex-col p-3 sm:p-3.5 rounded-xl text-left transition-all duration-150 min-h-[110px] cursor-pointer touch-manipulation border ${
+              className={`relative flex flex-col p-4 sm:p-5 rounded-2xl text-left transition-all duration-150 min-h-[120px] cursor-pointer touch-manipulation border ${
                 isSelected
-                  ? 'bg-amber-500/10 dark:bg-slate-900 border-amber-500 dark:border-amber-400 ring-2 ring-amber-500/40 dark:ring-amber-400/40 shadow-md'
-                  : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-850 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 shadow-xs'
+                  ? 'bg-white dark:bg-slate-900 border-[#1B4332] dark:border-amber-400 ring-2 ring-[#1B4332]/40 dark:ring-amber-400/40 shadow-md'
+                  : 'bg-white dark:bg-slate-900/60 hover:bg-[#FAF6EE] dark:hover:bg-slate-850 border-[#E8DFCE] dark:border-slate-800 hover:border-[#D9CEBA] dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 shadow-xs'
               }`}
             >
               {/* Selected Badge */}
               {isSelected && (
-                <span className="absolute top-2 right-2 flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                <span className="absolute top-2.5 right-2.5 flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1B4332] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#1B4332] dark:bg-amber-400"></span>
                 </span>
               )}
 
               {/* Bird Icon & Pure Name */}
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex items-center gap-2.5 mb-2">
                 <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 border"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 border"
                   style={{
                     backgroundColor: `${bird.color}18`,
                     borderColor: `${bird.color}50`,
@@ -103,32 +103,32 @@ export const BirdSelector: React.FC<BirdSelectorProps> = ({ selectedBird, onSele
               </div>
 
               {/* Role Indicators */}
-              <div className="mt-auto pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-1.5 text-[10px]">
+              <div className="mt-auto pt-2.5 border-t border-[#E8DFCE] dark:border-slate-800/80 space-y-1.5 text-[10px]">
                 <div className="flex flex-wrap items-center gap-1.5">
                   {dayRel === 'Ruling Bird' && (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-medium">
-                      <Sun className="w-3 h-3 text-amber-500 dark:text-amber-400" /> {t('dayRulerShort')}
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#C29738]/15 text-[#8C6B1C] dark:text-amber-300 border border-[#C29738]/30 font-bold">
+                      <Sun className="w-3 h-3 text-[#C29738]" strokeWidth={1.5} /> {t('dayRulerShort')}
                     </span>
                   )}
                   {nightRel === 'Ruling Bird' && (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/30 font-medium">
-                      <Moon className="w-3 h-3 text-purple-600 dark:text-purple-400" /> {t('nightRulerShort')}
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#133E46]/15 text-[#133E46] dark:text-purple-300 border border-[#133E46]/30 font-bold">
+                      <Moon className="w-3 h-3 text-[#133E46] dark:text-purple-400" strokeWidth={1.5} /> {t('nightRulerShort')}
                     </span>
                   )}
                   {dayRel === 'Dying Bird' && nightRel === 'Dying Bird' ? (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-500/30 font-bold">
-                      <Skull className="w-3 h-3 text-rose-600 dark:text-rose-400" /> {t('dyingShort')}
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 text-[#1e293b] dark:text-rose-200 border border-rose-500/30 font-bold">
+                      <Skull className="w-3 h-3 text-rose-600 dark:text-rose-400" strokeWidth={1.5} /> {t('dyingShort')}
                     </span>
                   ) : (
                     <>
                       {dayRel === 'Dying Bird' && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-500/30 font-medium">
-                          <Skull className="w-3 h-3 text-rose-600 dark:text-rose-400" /> {t('dayDyingShort')}
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 text-[#1e293b] dark:text-rose-200 border border-rose-500/30 font-bold">
+                          <Skull className="w-3 h-3 text-rose-600 dark:text-rose-400" strokeWidth={1.5} /> {t('dayDyingShort')}
                         </span>
                       )}
                       {nightRel === 'Dying Bird' && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-500/30 font-medium">
-                          <Skull className="w-3 h-3 text-rose-600 dark:text-rose-400" /> {t('nightDyingShort')}
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 text-[#1e293b] dark:text-rose-200 border border-rose-500/30 font-bold">
+                          <Skull className="w-3 h-3 text-rose-600 dark:text-rose-400" strokeWidth={1.5} /> {t('nightDyingShort')}
                         </span>
                       )}
                     </>

@@ -36,6 +36,8 @@ interface RealTimeCalendarModalProps {
     selectedDate?: Date
   ) => void;
   selectedDate?: Date | null;
+  todayLunarInfo?: LunarDayInfo;
+  todayDate?: Date;
 }
 
 const WEEKDAY_KEYS: DayOfWeek[] = [
@@ -55,20 +57,22 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
   currentDay,
   onSelectPakshaAndDay,
   selectedDate: initialSelectedDate,
+  todayLunarInfo: propTodayLunarInfo,
+  todayDate: propTodayDate,
 }) => {
   const { language, t, getBirdName, getDayName, getDayShortName } =
     useLanguage();
 
   const [activeDate, setActiveDate] = useState<Date>(() => {
-    return initialSelectedDate || new Date();
+    return initialSelectedDate || propTodayDate || new Date();
   });
 
   const [viewYear, setViewYear] = useState<number>(() => {
-    return (initialSelectedDate || new Date()).getFullYear();
+    return (initialSelectedDate || propTodayDate || new Date()).getFullYear();
   });
 
   const [viewMonth, setViewMonth] = useState<number>(() => {
-    return (initialSelectedDate || new Date()).getMonth();
+    return (initialSelectedDate || propTodayDate || new Date()).getMonth();
   });
 
   // Real-time ticking clock for "Live Now" banner
@@ -81,10 +85,10 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
     return () => clearInterval(timer);
   }, [isOpen]);
 
-  // Today's real-time lunar information
+  // Today's real-time lunar information (anchored to today, never stale)
   const todayLunarInfo = useMemo(() => {
-    return getLunarDayInfo(liveNow);
-  }, [liveNow]);
+    return propTodayLunarInfo || getLunarDayInfo(propTodayDate || liveNow);
+  }, [propTodayLunarInfo, propTodayDate, liveNow]);
 
   // Active selected date's lunar information
   const selectedLunarInfo = useMemo(() => {
@@ -132,7 +136,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
   };
 
   const handleJumpToToday = () => {
-    const today = new Date();
+    const today = propTodayDate || new Date();
     setActiveDate(today);
     setViewYear(today.getFullYear());
     setViewMonth(today.getMonth());
@@ -144,7 +148,7 @@ export const RealTimeCalendarModal: React.FC<RealTimeCalendarModalProps> = ({
   };
 
   const handleApplyRealtimeToday = () => {
-    const today = new Date();
+    const today = propTodayDate || new Date();
     setActiveDate(today);
     setViewYear(today.getFullYear());
     setViewMonth(today.getMonth());

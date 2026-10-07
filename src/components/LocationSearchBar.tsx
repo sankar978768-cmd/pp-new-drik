@@ -12,9 +12,20 @@ import {
 } from '../utils/locationService';
 import { useLanguage } from '../context/LanguageContext';
 
+export type LocationApplyCallback = (
+  sunrise: string,
+  sunset: string,
+  nextSunrise: string,
+  locationName: string,
+  lat?: number,
+  lng?: number,
+  timezone?: string,
+  timezoneOffset?: number
+) => void;
+
 interface LocationSearchBarProps {
   currentLocationName?: string;
-  onApplyLocationSchedule: (sunrise: string, sunset: string, nextSunrise: string, locationName: string) => void;
+  onApplyLocationSchedule: LocationApplyCallback;
   onResetStandard?: () => void;
   isCustomActive?: boolean;
 }
@@ -25,7 +36,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
   onResetStandard,
   isCustomActive,
 }) => {
-  const { language, t } = useLanguage();
+  const { language, t, getDayName } = useLanguage();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [results, setResults] = useState<LocationSearchResult[]>([]);
@@ -91,6 +102,8 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
       admin1: location.admin1,
       lat: location.lat,
       lng: location.lng,
+      timezone: location.timezone,
+      timezoneOffset: location.timezoneOffset,
       sunrise: solar.sunrise,
       sunset: solar.sunset,
       nextSunrise: solar.nextSunrise,
@@ -102,7 +115,16 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
     setSearchQuery('');
 
     // Trigger parent schedule update
-    onApplyLocationSchedule(solar.sunrise, solar.sunset, solar.nextSunrise, locDisplayName);
+    onApplyLocationSchedule(
+      solar.sunrise,
+      solar.sunset,
+      solar.nextSunrise,
+      locDisplayName,
+      location.lat,
+      location.lng,
+      location.timezone,
+      location.timezoneOffset
+    );
   };
 
   const handleSelectRecent = (item: RecentLocationSearch) => {
@@ -111,7 +133,16 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
     const locDisplayName = language === 'ta' && item.tamilName ? item.tamilName : item.name;
 
     setActiveLocationId(item.id);
-    onApplyLocationSchedule(solar.sunrise, solar.sunset, solar.nextSunrise, locDisplayName);
+    onApplyLocationSchedule(
+      solar.sunrise,
+      solar.sunset,
+      solar.nextSunrise,
+      locDisplayName,
+      item.lat,
+      item.lng,
+      item.timezone,
+      item.timezoneOffset
+    );
   };
 
   const handleRemoveRecent = (e: React.MouseEvent, id: string) => {
@@ -221,17 +252,26 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
                             </div>
                           </div>
 
-                          {/* Solar Preview */}
-                          <div className="text-right shrink-0 font-mono text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-2">
-                            <span className="flex items-center gap-1 text-amber-700 dark:text-amber-300">
-                              <Sun className="w-3.5 h-3.5 text-amber-500" />
-                              <span>{solar.sunrise}</span>
-                            </span>
-                            <span className="text-slate-400 dark:text-slate-600">•</span>
-                            <span className="flex items-center gap-1 text-purple-700 dark:text-purple-300">
-                              <Sunset className="w-3.5 h-3.5 text-purple-500" />
-                              <span>{solar.sunset}</span>
-                            </span>
+                          {/* Solar & Target Local Time/Day Preview */}
+                          <div className="text-right shrink-0 font-mono text-[11px] text-slate-600 dark:text-slate-300 flex flex-col items-end gap-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="flex items-center gap-1 text-amber-700 dark:text-amber-300">
+                                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                                <span>{solar.sunrise}</span>
+                              </span>
+                              <span className="text-slate-400 dark:text-slate-600">•</span>
+                              <span className="flex items-center gap-1 text-purple-700 dark:text-purple-300">
+                                <Sunset className="w-3.5 h-3.5 text-purple-500" />
+                                <span>{solar.sunset}</span>
+                              </span>
+                            </div>
+                            <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                              <span className="text-amber-800 dark:text-amber-300 font-semibold">{solar.localMoment.localTimeHHMM}</span>
+                              <span>•</span>
+                              <span>{getDayName(solar.localMoment.dayOfWeek)}</span>
+                              <span>•</span>
+                              <span>{solar.localMoment.paksha === 'valarpirai' ? (language === 'ta' ? 'வளர்பிறை' : 'Valarpirai') : (language === 'ta' ? 'தேய்பிறை' : 'Theipirai')}</span>
+                            </div>
                           </div>
                         </button>
                       </li>
