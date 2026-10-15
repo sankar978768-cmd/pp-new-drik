@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -12,10 +12,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Set up Java JDK 17
         uses: actions/setup-java@v4
@@ -23,22 +23,55 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
 
-      - name: Create Cordova Project & Build APK
+      - name: Build Website & Generate APK
         run: |
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+
+          # If the repo is a React/Vite/Node project, build it first
+          if [ -f "package.json" ]; then
+            npm install --legacy-peer-deps || true
+            npm run build -- --base=./ || npm run build || true
+          fi
+
+          # Create Cordova Android project
           npm install -g cordova
-          cordova create MyApp com.example.myapp MyWebsiteApp
-          rm -rf MyApp/www/*
-          cp -r * MyApp/www/ || true
-          cd MyApp
-          cordova platform add android
+          rm -rf /tmp/MyApp
+          cordova create /tmp/MyApp com.sankar.myapp MyApp
+          rm -rf /tmp/MyApp/www/*
+
+          # Copy built files or raw HTML files into Cordova
+          if [ -d "dist" ]; then
+            cp -r dist/* /tmp/MyApp/www/
+          elif [ -d "build" ]; then
+            cp -r build/* /tmp/MyApp/www/
+          else
+            cp -r * /tmp/MyApp/www/ || true
+          fi
+
+          # Ensure index.html exists
+          if [ ! -f "/tmp/MyApp/www/index.html" ]; then
+            FIRST_HTML=$(find /tmp/MyApp/www -maxdepth 2 -name "*.html" | head -n 1)
+            if [ -n "$FIRST_HTML" ]; then
+              cp "$FIRST_HTML" /tmp/MyApp/www/index.html
+            fi
+          fi
+
+          # Build the APK
+          cd /tmp/MyApp
+          cordova platform add android@14.0.1
           cordova build android
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: MyApp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          path: /tmp/MyApp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+
           
